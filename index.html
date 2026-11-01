@@ -1010,13 +1010,24 @@ exterior(() => {
   slab([988, 770, 994, 1029], 0, H_FULL, brickClad);                   // facing brick on the foyer's street wall
   slab([988, 1133, 994, 1170], 0, H_FULL, brickClad);
   wallLight(996, 1150, 6.4);
-  const G0 = -5.35;                                                    // road level
-  barGate([1388, 770, 1396, 940], G0, 6.5);                            // car gate to the parking
-  barGate([1388, 942, 1396, 1060], G0, 6.5);                           // pedestrian gate to the front steps
-  slab([1388, 1060, 1396, 1170], G0, G0 + 5.5);
-  slab([1395, 310, 1403, 770], G0, G0 + 3.8);                          // low front wall before the formal living planter
-  jaliAt([1395, 310, 1403, 770], G0 + 3.8, 2.2);                       // with a jali band on top
 });
+// boundary wall around the plot, from the ground floor plan (red / blue outline) and the south elevation:
+// 7 ft walls from road level on the north side and past the entrance on the south side, the west side
+// being the house's own wall; on the street (east) side a low wall with a jali band in front of the
+// formal living planter, then the car gate to the parking and the pedestrian gate to the front steps
+{
+  const G0 = -5.35, BH = 7.0;                                          // road level, wall height
+  const bwall = a => slab(a, G0, G0 + BH);
+  bwall([95, 299, 1395, 309]);                                         // north boundary
+  bwall([95, 299, 103, 370]);                                          // west, up to the house corner
+  slab([1385, 309, 1395, 770], G0, G0 + 3.8);                          // street side before the planter
+  jaliAt([1385, 309, 1395, 770], G0 + 3.8, 2.2);                       //   with a jali band on top
+  barGate([1386, 770, 1394, 940], G0, 6.5);                            // car gate to the parking
+  barGate([1386, 942, 1394, 1060], G0, 6.5);                           // pedestrian gate to the front steps
+  bwall([1385, 1060, 1395, 1183]);                                     // street side past the gates
+  bwall([1133, 1173, 1395, 1183]);                                     // south boundary past the entrance
+  for (const [x, y] of [[1390, 304], [1390, 770], [1390, 941], [1390, 1060], [1390, 1178]]) slab([x - 9, y - 9, x + 9, y + 9], G0, G0 + BH + 0.4);   // gate / corner pillars
+}
 
 // 1st floor: roof slab + parapet, brick box on Bed-01's street front, terrace planter, roof room, portal frame
 F = { ...FLOORS.f, key: "f" }; G = groups.f;
