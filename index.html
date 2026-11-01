@@ -815,6 +815,8 @@ windowOn([205, 795, 213, 820], 5.0, 2.0);
 // and the foyer's south wall behind the shoe cabinet
 wallPiece([200, 1166, 490, 1174], 0, H_FULL);
 wallPiece([866, 1166, 984, 1174], 0, H_FULL);
+// round column at the front of the entrance (sheet A.16), from road level up to the 1st floor slab
+{ const [x, z] = ft(1137, 1114); tall(cyl(0.68, H_FULL + 0.9 + 5, x, -5, z, M(C.white, { r: 0.7 }), 32), -5, H_FULL + 5.9); }
 // parking
 { const n = G.children.length; car([1010, 785, 1330, 925]); G.children.slice(n).forEach(o => o.position.y -= 4.5); }
 // plinth: the house floor stands 5'-0" above the road (sheet A.01 levels)
@@ -857,6 +859,8 @@ room({ name: "Terrace", dim: "6'-1\" × 12'-0\"", r: [1395, 804, 1632, 1134], wa
 // front balcony (terrace): low side walls instead of full-height ones, and a glass railing along the front
 // above the planter, as on the reference render
 wallPiece([1395, 800, 1636, 808], 0, 3.6); wallPiece([1395, 1130, 1636, 1138], 0, 3.6);
+// the same round column carries on at the front corner of the family living / balcony (sheet A.20)
+{ const [x, z] = ft(1374, 1154); tall(cyl(0.68, H_FULL, x, 0, z, M(C.white, { r: 0.7 }), 32), 0, H_FULL); }
 glassPanel([1630, 808, 1634, 1130], 2.1, 1.5, false);   // railing glass, no grill
 // side walls of the L-shaped bedrooms
 (() => { const a = R(590, 450, 598, 645); wall(a.cx, a.z0, a.cx, a.z1); const b = R(1080, 450, 1090, 645); wall(b.cx, b.z0, b.cx, b.z1); })();
