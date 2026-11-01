@@ -1052,8 +1052,14 @@ exterior(() => {
   for (const a of [[105, 205, 1595, 804], [105, 804, 1395, 964], [105, 964, 545, 1160], [1030, 964, 1395, 1160]]) slab(a, H_FULL, top);
   slab([1395, 796, 1648, 1142], H_FULL, top);                          // shade slab over the front balcony
   // parapets (4 ft, parapet level +31'-0") on the open roof edges
-  slab([594, 205, 1016, 213], top, top + 4); slab([1385, 645, 1395, 1160], top, top + 4);
-  slab([1590, 645, 1600, 808], top, top + 4); slab([1395, 800, 1600, 808], top, top + 4);
+  slab([594, 205, 1016, 213], top, top + 4); slab([1385, 645, 1395, 808], top, top + 4); slab([1385, 1134, 1395, 1160], top, top + 4);
+  slab([1590, 645, 1600, 808], top, top + 4); slab([1395, 800, 1648, 808], top, top + 4);
+  // roof balcony on top of the front balcony's shade slab, open from the east roof terrace:
+  // paved floor, glass railing on the street and south edges, solid wall on the north, planters
+  slab([1395, 808, 1646, 1140], top, top + 0.06, tileMat(C.paving, 9, 12, 12, 36));
+  glassPanel([1642, 808, 1646, 1140], 3.5, top, false);
+  glassPanel([1395, 1136, 1646, 1140], 3.5, top, false);
+  for (const z of [830, 1110]) { const [x, zz] = ft(1620, z); cyl(0.8, 1.6, x, top, zz, M(C.charcoal)); const b = new THREE.Mesh(new THREE.IcosahedronGeometry(1.1, 1), M(C.leaf, { r: 0.9 })); b.position.set(x, top + 2.6, zz); b.castShadow = true; G.add(b); }
   // brick box on Bed-01's street front (right on the reference): deep brick frame out to the planter edge,
   // triangle jali on the right (plan top), big framed window on the left
   const B = (a, y0, y1) => slab(a, y0, y1, brickClad), X0 = 1590, X1 = 1650;
