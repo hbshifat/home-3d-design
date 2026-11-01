@@ -1129,9 +1129,7 @@ exterior(() => {
   }
   // east terrace frame: perforated north wall, solid south wall, two free columns, Slab-2 with round cut-outs
   slab([1016, 205, 1377, 220], RT, S2 - 1.2, holed);
-  // south (left from the street) side of the roof top shed: brick jali between end piers
-  slab([1026, 1155, 1052, 1170], RT, S2 - 1.2); slab([1357, 1155, 1377, 1170], RT, S2 - 1.2);
-  jaliAt([1052, 1158, 1357, 1167], RT, S2 - 1.2 - RT);
+  slab([970, 1155, 1377, 1170], RT, S2 - 1.2);
   // the next side (west) continues as brick jali from the corner pier up to where the roof top room ends
   jaliAt([1026, 969, 1034, 1155], RT, S2 - 1.2 - RT);   // on the room's east wall line
   // shed columns: the west one sits on the roof room's east wall line, flush with the wall and its frame fin
