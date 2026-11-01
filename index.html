@@ -587,6 +587,40 @@ const jaliTex = (() => {
   t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace;
   return t;
 })();
+// night-only lighting: hidden by day, switched on by the Night button
+const warmGlow = new THREE.MeshBasicMaterial({ color: 0xFFC27A });
+const jaliBackMat = (() => {
+  const c = document.createElement("canvas"); c.width = 4; c.height = 256;
+  const g = c.getContext("2d"), gr = g.createLinearGradient(0, 256, 0, 0);
+  gr.addColorStop(0, "#FFC27A"); gr.addColorStop(0.35, "#E0873C"); gr.addColorStop(1, "#2A1A0E");
+  g.fillStyle = gr; g.fillRect(0, 0, 4, 256);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+  return new THREE.MeshBasicMaterial({ map: t, side: THREE.DoubleSide });
+})();
+function nightOnly(o) { o.visible = false; o.userData.night = true; return o; }
+function nightSpot(x, y, z, tx, ty, tz, power = 20, angle = 0.5, reach = 14) {
+  const l = new THREE.SpotLight(0xFFB86B, power, reach, angle, 0.6, 1.5);
+  l.position.set(x, y, z); l.target.position.set(tx, ty, tz);
+  G.add(nightOnly(l), l.target); return l;
+}
+// brick jali lit from inside, bottom to top: a warm LED strip along its foot on the inner side and
+// uplights grazing up the blocks, so at night the triangle holes glow outward
+function jaliGlow(r, alongX, len, y0, h) {
+  const c = F.key === "f" ? ft(860, 677) : ft(745, 762);
+  const s = (alongX ? Math.sign(c[1] - r.cz) : Math.sign(c[0] - r.cx)) || 1;   // inner side, toward the house
+  const ox = alongX ? 0 : s, oz = alongX ? s : 0;
+  const strip = new THREE.Mesh(new THREE.BoxGeometry(alongX ? len - 0.2 : 0.08, 0.06, alongX ? 0.08 : len - 0.2), warmGlow);
+  strip.position.set(r.cx + ox * 0.3, y0 + 0.06, r.cz + oz * 0.3); G.add(nightOnly(strip));
+  // the lit inner side seen through the triangle holes: warm at the foot, fading toward the top
+  const back = new THREE.Mesh(new THREE.PlaneGeometry(len, h), jaliBackMat);
+  back.position.set(r.cx + ox * 0.32, y0 + h / 2, r.cz + oz * 0.32); if (!alongX) back.rotation.y = Math.PI / 2;
+  G.add(nightOnly(back));
+  const n = Math.min(4, Math.max(1, Math.round(len / 5)));
+  for (let i = 0; i < n; i++) {
+    const u = -len / 2 + (i + 0.5) * len / n, x = r.cx + (alongX ? u : 0), z = r.cz + (alongX ? 0 : u);
+    nightSpot(x + ox * 0.7, y0 + 0.15, z + oz * 0.7, x, y0 + h, z, 22, 0.5, h + 4);
+  }
+}
 function brickJali(a, h = H_FULL) {
   const r = R(...a), alongX = r.w > r.d, len = alongX ? r.w : r.d;
   const map = jaliTex.clone(); map.needsUpdate = true;
@@ -594,6 +628,7 @@ function brickJali(a, h = H_FULL) {
   const m = new THREE.MeshStandardMaterial({ color: C.brick, map, alphaTest: 0.5, side: THREE.DoubleSide, roughness: 0.9 });
   (byKey.brick ||= []).push(m);
   tall(box(alongX ? len : 0.3, h, alongX ? 0.3 : len, r.cx, 0, r.cz, m, false), 0, h);
+  jaliGlow(r, alongX, len, 0, h);
 }
 // Window on a solid wall: framed glass a little proud of both faces, from sill to head height.
 function windowOn(a, sill, h) {
@@ -1017,6 +1052,7 @@ function jaliAt(a, y0, h) {
   const m = new THREE.MeshStandardMaterial({ color: C.brick, map, alphaTest: 0.5, side: THREE.DoubleSide, roughness: 0.9 });
   (byKey.brick ||= []).push(m);
   box(alongX ? len : 0.3, h, alongX ? 0.3 : len, r.cx, y0, r.cz, m, false);
+  jaliGlow(r, alongX, len, y0, h);
 }
 // The street front is the EAST face (plan right): the main door, entrance steps, parking gate and
 // the formal living / Bed-01 brick jali all face it, matching the reference render seen from the road.
@@ -1055,6 +1091,10 @@ exterior(() => {
   slab([988, 770, 994, 1029], 0, H_FULL, brickClad);                   // facing brick on the foyer's street wall
   slab([988, 1133, 994, 1170], 0, H_FULL, brickClad);
   wallLight(996, 1150, 6.4);
+  // street front at night: grazing uplights at the foot of the facing brick foyer wall,
+  // uplights in the planter washing the formal living jali and greenery
+  for (const pz of [800, 900, 1000]) { const [x, z] = ft(1000, pz); box(0.35, 0.12, 0.35, x, 0, z, M(C.black, { m: 0.5, r: 0.4 })); nightSpot(x, 0.15, z, x - 0.3, 9, z, 26, 0.45, 13); }
+  for (const pz of [420, 520, 640, 730]) { const [x, z] = ft(1300, pz); nightSpot(x, 0.2, z, x - 1.2, 8, z, 18, 0.55, 12); }
 });
 // boundary wall around the plot, from the ground floor plan (red / blue outline) and the south elevation:
 // 7 ft walls from road level on the north side and past the entrance on the south side, the west side
@@ -1073,6 +1113,13 @@ exterior(() => {
   bwall([1385, 1060, 1395, 1183]);                                     // street side past the gates
   bwall([1133, 1173, 1395, 1183]);                                     // south boundary past the entrance
   for (const [x, y] of [[1390, 304], [1390, 770], [1390, 941], [1390, 1060], [1390, 1178]]) slab([x - 9, y - 9, x + 9, y + 9], G0, G0 + BH + 0.4);   // gate / corner pillars
+  // pillar lamps: a glowing cube on each pillar, with a soft light for the gate and the street
+  for (const py of [304, 770, 941, 1060, 1178]) {
+    const [x, z] = ft(1390, py), y = G0 + BH + 0.4;
+    box(0.6, 0.6, 0.6, x, y, z, M(C.black, { m: 0.5, r: 0.4 }));
+    const lamp = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.45, 0.62), warmGlow); lamp.position.set(x, y + 0.3, z); G.add(nightOnly(lamp));
+    const pl = new THREE.PointLight(0xFFC287, 8, 12, 2); pl.position.set(x + 0.6, y + 0.3, z); G.add(nightOnly(pl));
+  }
 }
 
 // 1st floor: roof slab + parapet, brick box on Bed-01's street front, terrace planter, roof room, portal frame
@@ -1099,6 +1146,15 @@ exterior(() => {
   slab([X1 - 8, 450, X1 - 5, 602], 1.0, 8.2, M(C.glass, { r: 0.08, m: 0.4 }));
   for (const z of [450, 526, 602]) slab([X1 - 9, z - 1, X1 - 4, z + 1], 1.0, 8.2, M(C.black));
   planterGreens([X1, 205, X1 + 24, 645], -0.3);
+  // night: downlights in the brick frame's soffit over the window and jali, and in the balcony shade slab
+  for (const pz of [290, 380, 526]) {
+    const [x, z] = ft(1630, pz), d = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.03, 16), warmGlow);
+    d.position.set(x, 8.18, z); G.add(nightOnly(d)); nightSpot(x, 8.1, z, x + 0.8, -0.3, z, 24, 0.6, 12);
+  }
+  for (const pz of [880, 970, 1060]) {
+    const [x, z] = ft(1600, pz), d = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.25, 0.03, 16), warmGlow);
+    d.position.set(x, H_FULL - 0.02, z); G.add(nightOnly(d)); nightSpot(x, H_FULL - 0.1, z, x, 0, z, 22, 0.7, 12);
+  }
   // terrace (left on the reference): planter along its street edge with greenery spilling over
   planterGreens([1610, 804, 1636, 1134], 0);
   // ---- roof floor, after sheets A.03 (roof floor plan) and A.12 (roof top slab & beam plan) ----
@@ -1379,7 +1435,7 @@ function applyMode() {
   [["f-g", "g"], ["f-1", "f"], ["f-b", "b"]].forEach(([id, m]) => document.getElementById(id).setAttribute("aria-pressed", mode === m));
   renderRooms();
 }
-function applyExt() { extItems.forEach(o => o.visible = mode === "b" && !wallsLow); }
+function applyExt() { extItems.forEach(o => o.visible = mode === "b" && !wallsLow && (!o.userData.night || night)); }
 function applyWalls() {
   walls.forEach(m => {
     const { y0, h } = m.userData.cut;
@@ -1466,14 +1522,14 @@ function applyTime() {
   renderer.toneMappingExposure = night ? 1.1 : 0.95;
   const seen = new Set();
   scene.traverse(o => {
-    if (o.isLight && o.userData.night) o.visible = night;
+    if (o.userData.night) o.visible = night;
     if (o.isMesh && o.material.isMeshStandardMaterial && !seen.has(o.material)) {
       const m = o.material; seen.add(m);
       if (m.userData.envBase === undefined) m.userData.envBase = m.envMapIntensity;
       m.envMapIntensity = m.userData.envBase * (night ? 0.12 : 1);
     }
   });
-  themeStage();
+  applyExt(); themeStage();
   document.getElementById("t-day").setAttribute("aria-pressed", !night);
   document.getElementById("t-night").setAttribute("aria-pressed", night);
 }
