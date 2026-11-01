@@ -12,6 +12,7 @@ Session dates: 30 October – 1 November 2026. Owner: Hasanul Banna Shifat. Buil
 | Dhaka Designer "Final Architectural Working Drawing, April 2026" (36 sheets) | Door/window schedules, tile sizes, stair, foyer, brick jali, roof floor and roof slab |
 | Exterior reference render (brick box with triangle jali, perforated roof frame) | Street-front design |
 | Reference photos | Wooden slat screen, window safety grill |
+| Minimal Ltd "Electrical & Plumbing Drawing" (05.07.26, 11 sheets) | Lights, fans, switch boards, sockets, AC and exhaust points |
 
 ## Palette (60-30-10, warm earthy)
 
@@ -53,6 +54,12 @@ Presets in the viewer: Warm earthy, Scandi light, Moody dark, Coastal.
     running to the TV wall line, the formal living north wall over the jali strip, room labels (kitchen
     10'-10" × 16'-5", storage 6'-7" × 10'-8", stair 17'-6" × 7'-0", parking 19'-3" × 8'-2"), and the Bed-01 brick
     box proportions from the street elevation (8'-0" jali, 5'-6" window).
+
+17. **Roof shed circles**: the Slab-2 cut-outs and the north wall holes follow A.12 and the A.06 elevation (4 × 5 grid, 1'-0" and 1'-8" holes). The south side of the shed went back to a solid wall.
+18. **Electrical layout** from the Minimal Ltd E&P drawing: ceiling spot lights, down lights, ceiling fans, chandeliers,
+    wall lights (7'-6"), exhaust fans, split AC units (7'-0" top), switch boards (4'-4"), and bed side (2'-0"),
+    fridge (1'-6") and counter (42") sockets on both floors. Symbols were found by color on the rendered sheets
+    (`tools/electrical/`) and mapped onto the plan; wall items snap to the nearest wall face. Electrical on/off button.
 
 ## Decisions made by the owner
 

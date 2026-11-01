@@ -122,6 +122,9 @@ h2 { font: 700 12px var(--display); letter-spacing: .1em; text-transform: upperc
       <div class="seg" role="group" aria-label="Curtains">
         <button id="c-tog" aria-pressed="true">Curtains</button>
       </div>
+      <div class="seg" role="group" aria-label="Electrical">
+        <button id="e-tog" aria-pressed="true">Electrical</button>
+      </div>
       <div class="seg zoom" role="group" aria-label="Zoom">
         <button id="z-out" aria-label="Zoom out">−</button>
         <input id="z-range" type="range" min="0" max="100" step="1" aria-label="Zoom level">
@@ -1161,6 +1164,101 @@ exterior(() => {
   slab([1377, 205, 1650, 213], RT, RT + 4, brickClad); slab([1377, 637, 1650, 645], RT, RT + 4, brickClad); slab([1642, 205, 1650, 645], RT, RT + 4, brickClad);
 });
 
+// ---------- electrical layout (Minimal Ltd E&P drawing, 05.07.26) ----------
+// Points traced from the ground and 1st floor proposed electrical layouts and mapped onto the plan.
+// Heights from the electrical legend: switch board 4'-4", bed side sockets 2'-0", fridge / washing
+// machine 1'-6", dinner wagon / kitchen counter 42", wall light 7'-6", AC 7'-0" top.
+const ELEC = {
+  g: {"spot":[[556,411],[824,411],[949,411],[1066,411],[1183,411],[500,411],[333,454],[431,454],[556,533],[824,533],[500,555],[333,641],[431,641],[556,656],[824,656],[949,656],[1066,656],[1183,656],[150,758],[556,767],[693,767],[824,767],[934,767],[447,777],[249,904],[346,904],[442,904],[934,925],[249,992],[442,992],[934,1076],[249,1081],[346,1081],[442,1081]],"wall":[[456,332],[1141,332],[641,388],[835,388],[1141,388],[220,474],[266,482],[848,532],[895,532],[116,565],[220,645],[266,645],[1150,757],[304,852],[365,852],[511,903],[848,903],[964,924],[1011,924],[464,934],[895,1015],[176,1064],[511,1077],[848,1077],[304,1094],[415,1094],[344,1150],[930,1158]],"exhaust":[[224,806]],"fan":[[680,503],[359,544],[1058,553],[139,678],[346,992]],"chand":[[964,559],[1151,559],[679,621]],"sb":[[562,372],[159,585],[159,601],[993,717],[415,794],[479,913],[980,1011],[996,1011]],"bedside":[[1194,378],[234,1103],[435,1103]],"fridge":[[107,390],[107,523],[281,711]],"wagon":[[314,379],[424,379],[509,379],[258,429],[108,461],[258,568],[432,710]],"ac":[[697,379,0],[1063,379,0],[214,962,1]],"down":[[1318,474],[1318,597],[1063,885],[1254,885],[528,912],[832,912],[1063,1030],[1254,1030]]},
+  f: {"spot":[[174,280],[280,280],[386,280],[776,280],[885,280],[993,280],[1281,280],[1398,280],[1516,280],[174,426],[386,426],[776,426],[993,426],[1281,426],[1516,426],[487,546],[692,546],[280,572],[386,572],[776,572],[885,572],[993,572],[1281,572],[1398,572],[1516,572],[447,719],[635,719],[932,719],[1075,719],[1198,719],[1320,719],[167,852],[304,852],[441,852],[1075,910],[1320,910],[167,976],[441,976],[167,1100],[304,1100],[441,1100],[1075,1100],[1198,1100]],"wall":[[1489,230],[132,301],[1049,327],[417,328],[1250,328],[132,492],[979,618],[1284,618],[1417,618],[784,679],[1185,679],[397,720],[337,721],[189,822],[508,886],[1058,1029],[283,1131],[452,1131]],"exhaust":[[474,199],[699,199],[1191,199],[495,244],[685,244],[1164,247],[149,755],[101,764]],"fan":[[281,426],[885,426],[1399,426],[1215,905],[304,976]],"chand":[[783,720],[1214,779],[1214,1030]],"sb":[[447,453],[729,453],[1221,453],[367,638],[754,638],[1244,638],[754,659],[1125,659],[358,802]],"bedside":[[429,229],[1060,241],[1060,467],[1550,619],[107,810],[144,810],[1370,855],[150,1143],[464,1150],[500,1150]],"fridge":[],"wagon":[],"ac":[[288,218,0],[887,218,0],[1392,218,0],[120,963,1]],"down":[[1473,845],[589,893],[783,893],[977,893],[1473,926],[1473,1007]]}
+};
+function elec(m, y0, h) { tall(m, y0, h).userData.elec = true; return m; }
+// the wall face nearest a plan point: { x, z, nx, nz, alongX }
+function wallFace(x, z) {
+  let best = null, bd = 2.5;
+  for (const m of walls) {
+    if (m.parent !== G || m.geometry.type !== "BoxGeometry" || m.userData.cut.h < 6 || m.userData.curtain || m.material.transparent) continue;
+    const { width: w, depth: d } = m.geometry.parameters, cx = m.position.x, cz = m.position.z;
+    if (Math.min(w, d) > 1.2) continue;
+    const dx = Math.max(Math.abs(x - cx) - w / 2, 0), dz = Math.max(Math.abs(z - cz) - d / 2, 0), dist = Math.hypot(dx, dz);
+    if (dist < bd) { bd = dist; best = { m, w, d, cx, cz }; }
+  }
+  if (!best) return null;
+  const { w, d, cx, cz } = best;
+  if (w >= d) { const s = z >= cz ? 1 : -1; return { x: Math.min(Math.max(x, cx - w / 2 + 0.4), cx + w / 2 - 0.4), z: cz + s * d / 2, nx: 0, nz: s, alongX: true }; }
+  const s = x >= cx ? 1 : -1; return { x: cx + s * w / 2, z: Math.min(Math.max(z, cz - d / 2 + 0.4), cz + d / 2 - 0.4), nx: s, nz: 0, alongX: false };
+}
+// a box on a wall face: a = along the wall, h = height, t = depth off the wall
+function onWall(f, a, h, t, y0, mat, off = 0) {
+  const x = f.x + f.nx * (t / 2 + off), z = f.z + f.nz * (t / 2 + off);
+  return elec(f.alongX ? box(a, h, t, x, y0, z, mat, false) : box(t, h, a, x, y0, z, mat, false), y0, h);
+}
+{
+  const plate = M(0xF4F2EE, { r: 0.4 }), dark = M(0x2A2A2A, { r: 0.5 }), metal = M(0xB9B4AA, { m: 0.6, r: 0.35 });
+  const glow = new THREE.MeshBasicMaterial({ color: 0xFFE2B0 }), fanWood = M(0x6E5236, { r: 0.55 });
+  const top = H_FULL;
+  for (const k of ["g", "f"]) {
+    F = { ...FLOORS[k], key: k }; G = groups[k];
+    const E = ELEC[k], P = ([px, py]) => ft(px, py);
+    // ceiling spot lights and down lights: white trim with a warm glowing lens
+    for (const p of [...E.spot, ...E.down]) {
+      const [x, z] = P(p);
+      elec(cyl(0.3, 0.05, x, top - 0.05, z, plate, 20), top - 0.05, 0.05);
+      elec(cyl(0.2, 0.02, x, top - 0.07, z, glow, 20), top - 0.07, 0.02);
+    }
+    // ceiling fans: down rod, motor, three walnut blades
+    for (const p of E.fan) {
+      const [x, z] = P(p);
+      elec(cyl(0.05, 1.0, x, top - 1.0, z, metal, 8), top - 1.0, 1.0);
+      elec(cyl(0.38, 0.32, x, top - 1.3, z, metal, 20), top - 1.3, 0.32);
+      for (let i = 0; i < 3; i++) {
+        const a = i * Math.PI * 2 / 3 + 0.3, b = box(2.1, 0.04, 0.42, x + Math.cos(a) * 1.35, top - 1.18, z - Math.sin(a) * 1.35, fanWood);
+        b.rotation.y = a; elec(b, top - 1.18, 0.04);
+      }
+    }
+    // chandeliers: a ring of glowing drops on a brass frame
+    for (const p of E.chand) {
+      const [x, z] = P(p), brass = M(0xB08D57, { m: 0.8, r: 0.3 });
+      elec(cyl(0.03, 1.6, x, top - 1.6, z, brass, 6), top - 1.6, 1.6);
+      elec(cyl(0.9, 0.06, x, top - 1.7, z, brass, 28), top - 1.7, 0.06);
+      for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4; elec(cyl(0.09, 0.45, x + Math.cos(a) * 0.8, top - 2.15, z + Math.sin(a) * 0.8, glow, 10), top - 2.15, 0.45); }
+      const l = new THREE.PointLight(0xFFC98A, 14, 14, 2); l.position.set(x, top - 2.2, z); l.userData.elecLight = true; G.add(l);
+    }
+    // wall lights at 7'-6": a slim up-down sconce
+    for (const p of E.wall) {
+      const f = wallFace(...P(p)); if (!f) continue;
+      onWall(f, 0.3, 0.75, 0.22, 7.1, dark);
+      onWall(f, 0.18, 0.04, 0.12, 7.06, glow, 0.04); onWall(f, 0.18, 0.04, 0.12, 7.85, glow, 0.04);
+    }
+    // exhaust fans high on the toilet walls (symbols drawn in parts, so nearby ones merge)
+    const ex = [];
+    for (const p of E.exhaust) { const q = ex.find(e => Math.hypot(e[0] - p[0], e[1] - p[1]) < 60); if (q) { q[0] = (q[0] + p[0]) / 2; q[1] = (q[1] + p[1]) / 2; } else ex.push([...p]); }
+    for (const p of ex) {
+      const f = wallFace(...P(p)); if (!f) continue;
+      onWall(f, 0.85, 0.85, 0.06, 7.3, plate);
+      for (let i = 0; i < 4; i++) onWall(f, 0.65, 0.04, 0.02, 7.45 + i * 0.16, dark, 0.06);
+    }
+    // split AC indoor units, top at 7'-0"
+    for (const p of E.ac) {
+      const f = wallFace(...P(p)); if (!f) continue;
+      onWall(f, 2.9, 0.95, 0.7, 6.05, plate);
+      onWall(f, 2.6, 0.05, 0.05, 6.2, dark, 0.7);
+    }
+    // switch boards at 4'-4"
+    for (const p of E.sb) {
+      const f = wallFace(...P(p)); if (!f) continue;
+      onWall(f, 0.45, 0.4, 0.04, 4.13, plate);
+      for (const o of [-0.12, 0, 0.12]) { const g = { ...f, x: f.x + (f.alongX ? o : 0), z: f.z + (f.alongX ? 0 : o) }; onWall(g, 0.06, 0.14, 0.02, 4.27, dark, 0.04); }
+    }
+    // power sockets: bed side 2'-0", fridge / washing machine 1'-6", dinner wagon / counter 42"
+    for (const [list, y] of [[E.bedside, 2.0], [E.fridge, 1.5], [E.wagon, 3.5]]) for (const p of list) {
+      const f = wallFace(...P(p)); if (!f) continue;
+      onWall(f, 0.3, 0.3, 0.04, y - 0.15, plate);
+      onWall(f, 0.12, 0.08, 0.02, y - 0.04, dark, 0.04);
+    }
+  }
+}
+
 // warm interior lights (about 3000 K) near ceiling height in the main rooms, one floor group each
 function lamp(px, py, power = 45) {
   const [x, z] = ft(px, py), l = new THREE.PointLight(0xFFC487, power, 26, 2);
@@ -1181,7 +1279,7 @@ const center = {};
 F = { ...FLOORS.f, key: "f" }; center.f = R(75, 195, 1645, 1160);
 F = { ...FLOORS.g, key: "g" }; center.g = R(95, 355, 1395, 1170);
 
-let mode = "g", wallsLow = true, showLabels = true, showCurtains = true;
+let mode = "g", wallsLow = true, showLabels = true, showCurtains = true, showElec = true;
 const STACK = H_FULL + 0.9;
 function applyMode() {
   groups.g.visible = mode !== "f";
@@ -1197,7 +1295,7 @@ function applyWalls() {
   walls.forEach(m => {
     const { y0, h } = m.userData.cut;
     const hh = wallsLow ? Math.max(0.05, Math.min(h, H_LOW - y0)) : h;
-    m.visible = !(wallsLow && (m.userData.hideLow || y0 >= H_LOW)) && !(m.userData.curtain && !showCurtains);
+    m.visible = !(wallsLow && (m.userData.hideLow || y0 >= H_LOW)) && !(m.userData.curtain && !showCurtains) && !(m.userData.elec && !showElec);
     m.scale.y = hh / h; m.position.y = y0 + hh / 2;
   });
   applyExt();
@@ -1271,6 +1369,11 @@ composer.addPass(new OutputPass());
 scene.traverse(o => { if (o.isMesh && o.material.isMeshStandardMaterial) o.material.envMapIntensity = o.material.transparent || o.material.metalness > 0.3 ? 1 : 0.4; });
 let realistic = true;
 document.getElementById("c-tog").onclick = e => { showCurtains = !showCurtains; e.currentTarget.setAttribute("aria-pressed", showCurtains); applyWalls(); };
+document.getElementById("e-tog").onclick = e => {
+  showElec = !showElec; e.currentTarget.setAttribute("aria-pressed", showElec);
+  for (const k of ["g", "f"]) groups[k].children.forEach(o => { if (o.userData.elecLight) o.visible = showElec; });
+  applyWalls();
+};
 // zoom: buttons and a slider that move the camera toward or away from the point it orbits,
 // on a log scale so each step feels the same; the slider follows mouse-wheel and pinch zoom too
 const zRange = document.getElementById("z-range");
