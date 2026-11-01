@@ -1151,17 +1151,6 @@ exterior(() => {
     const [x, z] = ft(1630, pz), d = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.03, 16), warmGlow);
     d.position.set(x, 8.18, z); G.add(nightOnly(d)); nightSpot(x, 8.1, z, x + 0.8, -0.3, z, 24, 0.6, 12);
   }
-  // grazing uplights hidden in the planter, washing the brick box's street face from bottom to top,
-  // and one on each side face so the whole box reads at night
-  for (const pz of [222, 290, 360, 430, 500, 570, 632]) {
-    const [x, z] = ft(1657, pz), [fx] = ft(1650, pz);
-    box(0.3, 0.12, 0.3, x, 1.2, z, M(C.black, { m: 0.5, r: 0.4 }));
-    nightSpot(x + 0.3, 1.35, z, fx + 0.05, top + 0.3, z, 140, 0.45, 24);
-  }
-  for (const [pz, dz] of [[198, -1], [652, 1]]) for (const px of [1605, 1635]) {
-    const [x, z] = ft(px, pz);
-    nightSpot(x, -0.1, z + dz * 0.8, x, top + 0.3, z, 90, 0.42, 24);
-  }
   for (const pz of [880, 970, 1060]) {
     const [x, z] = ft(1600, pz), d = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.25, 0.03, 16), warmGlow);
     d.position.set(x, H_FULL - 0.02, z); G.add(nightOnly(d)); nightSpot(x, H_FULL - 0.1, z, x, 0, z, 22, 0.7, 12);
