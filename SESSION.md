@@ -64,6 +64,10 @@ Presets in the viewer: Warm earthy, Scandi light, Moody dark, Coastal.
     Then the smaller points: geysers (from the geyser layouts), CCTV cameras, Wi-Fi mesh routers, SDBs, kitchen hood
     multi socket, basin sockets (4'-4"), calling bell (7'-6") and dish (Akash line) outlets.
 
+19. **Stairwell**: the 1st floor floor is open over the stair, so the ground stair shows from above. The ground stair
+    now climbs the full storey and lands level with the 1st floor. An oak and steel railing runs across the open
+    well at the top of the stair, between the arriving and departing flights.
+
 ## Decisions made by the owner
 
 - No separation wall between drawing and dining room (the drawing shows a dining-wagon partition); a wooden slat screen instead.

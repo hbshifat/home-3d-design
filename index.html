@@ -439,9 +439,9 @@ function tileMat(hex, w, d, tw, td = tw) {
 
 function room(def) {
   const parts = [def.r, ...(def.extra || [])].map(a => R(...a));
-  const floorHex = { tile: C.tile, wood: C.oak, wet: C.wetTile, grass: C.grass, paving: C.paving, stone: 0xB4ADA0 }[def.floor || "tile"];
+  const floorHex = { none: C.tile, tile: C.tile, wood: C.oak, wet: C.wetTile, grass: C.grass, paving: C.paving, stone: 0xB4ADA0 }[def.floor || "tile"];
   const floorMat = M(floorHex, { r: def.floor === "tile" ? 0.55 : 0.85 });
-  parts.forEach(p => {
+  if (def.floor !== "none") parts.forEach(p => {
     const mat = def.tile ? tileMat(floorHex, p.w, p.d, ...def.tile) : floorMat;
     const s = box(p.w, 0.3, p.d, p.cx, (def.level || 0) - 0.3, p.cz, mat, false); s.receiveShadow = true;
   });
@@ -723,7 +723,7 @@ function basin(a) { const r = R(...a); rbox(r, 2.7, M(C.walnut)); rbox(r, 0.2, M
 //   flight 2 (the long one) climbs east along the south side,
 //   landing 2 in the south-east corner,
 //   flight 3 climbs north and arrives at the floor above.
-function stair(a, rise = H_FULL + 0.3) {
+function stair(a, rise = H_FULL + 0.3, wellRail = false) {
   const r = R(...a), n1 = 3, n2 = 12, n3 = 4, riser = rise / (n1 + n2 + n3 + 3);   // treads + 2 landings + arrival
   const wW = r.w * 0.28, wE = r.w * 0.2;      // west and east column widths
   const zL = r.z0 + r.d * 0.55;               // north edge of the south band (landings + flight 2)
@@ -783,6 +783,7 @@ function stair(a, rise = H_FULL + 0.3) {
   rail(x2a, 0, r.z0, x2a, y1, zL);                 // flight 1, east edge
   rail(x2a, y1, zL, x2b, y2, zL);                  // flight 2, north edge
   rail(x2b, y2, zL, x2b, rise, r.z0);              // flight 3, west edge
+  if (wellRail) rail(x2a, 0, r.z0, x2b, 0, r.z0);   // across the open well at this floor, between flights 1 and 3
 }
 function car(a) {
   const r = R(...a);
@@ -881,7 +882,13 @@ door([481, 846, 493, 918]);
 door([246, 615, 258, 680]);
 door([356, 723, 410, 735]);
 // stair + small brick jali at its left (west) end + courtyard
-stair([495, 795, 862, 945]);
+// The ground stair climbs the full storey (H_FULL + 0.9) and arrives level with the 1st floor. It lives in its
+// own group so the 1st floor view can still show it below the open stairwell.
+const groundStair = new THREE.Group(); scene.add(groundStair);
+{ const keep = G; G = groundStair; stair([495, 795, 862, 945], H_FULL + 0.9);
+  const f = R(495, 795, 862, 945);   // ground floor under the well, seen only from the 1st floor view
+  G.userData.floor = box(f.w + 1, 0.3, f.d + 1, f.cx, -0.3, f.cz, tileMat(C.tile, f.w + 1, f.d + 1, 32, 32), false);
+  G = keep; }
 brickJali([495, 951, 565, 959]);
 for (let i = 0; i < 14; i++) { const x = 516 + i * 24.2; rbox(R(x, 986, x + 17, 1058), 0.08, M(C.paving, { r: 0.9 }), 0.001); }
 [[560, 1080], [650, 1120], [760, 1075], [820, 1130]].forEach(([x, y]) => plant(x, y, 1.2));
@@ -968,7 +975,7 @@ room({ r: [1595, 205, 1645, 645], walls: "", floor: "grass" });
 room({ name: "Toilet", dim: "9'-3\" × 4'-10\"", r: [105, 660, 370, 790], floor: "wet", tile: [12, 24] });
 room({ name: "Corridor", dim: "5'-0\" wide", r: [380, 650, 1035, 770], walls: "" , tile: [32, 32]});
 room({ name: "Bother Bed", dim: "15'-6\" × 13'-1\"", r: [105, 800, 535, 1160], tile: [32, 32] });
-room({ name: "Stair", dim: "17'-6\" × 6'-3\"", r: [545, 770, 1030, 960], walls: "", tile: [32, 32] });
+room({ name: "Stair", dim: "17'-6\" × 6'-3\"", r: [545, 770, 1030, 960], walls: "", floor: "none" });   // open stairwell over the ground stair
 room({ name: "Family Living", dim: "12'-9\" × 18'-4\"", r: [1035, 655, 1395, 1160], walls: "s", tile: [32, 32]});
 room({ name: "Terrace", dim: "6'-1\" × 12'-0\"", r: [1395, 804, 1632, 1134], walls: "", floor: "paving" });
 // front balcony (terrace): low side walls instead of full-height ones, and a glass railing along the front
@@ -1040,7 +1047,7 @@ cushionSeat([1040, 960, 1090, 1122]);
 counter([1040, 775, 1088, 955], 3.4, C.walnut, C.stone);
 panelWall([1031, 780, 1037, 955], C.brick, 9.2);
 curtain([1376, 667, 1382, 1153], true);
-stair([550, 775, 1028, 955]);
+stair([550, 775, 1028, 955], undefined, true);
 // terrace planter
 counter([1575, 812, 1625, 1126], 1.6, C.charcoal, C.grass);
 [850, 930, 1010, 1090].forEach(y => plant(1600, y, 0.9));
@@ -1531,6 +1538,8 @@ function applyMode() {
   groups.g.visible = mode !== "f";
   groups.f.visible = mode !== "g";
   groups.f.position.y = mode === "b" ? STACK : 0;
+  groundStair.position.y = mode === "f" ? -STACK : 0;     // in the 1st floor view it hangs below the stairwell
+  groundStair.userData.floor.visible = mode === "f";
   applyExt();
   for (const k of ["g", "f"]) labels[k].forEach(l => l.visible = showLabels && groups[k].visible);
   [["f-g", "g"], ["f-1", "f"], ["f-b", "b"]].forEach(([id, m]) => document.getElementById(id).setAttribute("aria-pressed", mode === m));
