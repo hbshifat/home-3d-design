@@ -122,6 +122,13 @@ h2 { font: 700 12px var(--display); letter-spacing: .1em; text-transform: upperc
       <div class="seg" role="group" aria-label="Curtains">
         <button id="c-tog" aria-pressed="true">Curtains</button>
       </div>
+      <div class="seg" role="group" aria-label="Time of day">
+        <button id="t-day" aria-pressed="true">Day</button>
+        <button id="t-night" aria-pressed="false">Night</button>
+      </div>
+      <div class="seg" role="group" aria-label="Look up at the ceiling">
+        <button id="u-tog" aria-pressed="false" title="View the ceilings from below">Look up</button>
+      </div>
       <div class="seg" role="group" aria-label="Electrical">
         <button id="e-tog" aria-pressed="true">Electrical</button>
       </div>
@@ -310,7 +317,8 @@ controls.maxDistance = 180;
 // tile and metal; the sun adds warm late-afternoon light with crisp shadows.
 const pmrem = new THREE.PMREMGenerator(renderer);
 scene.environment = pmrem.fromScene(new RoomEnvironment(renderer), 0.04).texture;
-scene.add(new THREE.HemisphereLight(0xFFF4E2, 0x8A7F6E, 0.25));
+const hemi = new THREE.HemisphereLight(0xFFF4E2, 0x8A7F6E, 0.25);
+scene.add(hemi);
 const sun = new THREE.DirectionalLight(0xFFE2BC, 2.6);
 sun.position.set(-30, 70, 40);
 sun.castShadow = true;
@@ -319,9 +327,10 @@ Object.assign(sun.shadow.camera, { left: -60, right: 60, top: 60, bottom: -60, n
 sun.shadow.bias = -0.0003; sun.shadow.normalBias = 0.03;
 scene.add(sun, sun.target);
 
+let night = false, lookUp = false;
 function themeStage() {
   const v = getComputedStyle(document.documentElement).getPropertyValue("--stage").trim() || "#E9E5DD";
-  scene.background = new THREE.Color(v);
+  scene.background = new THREE.Color(night ? "#0D1120" : v);
 }
 themeStage();
 matchMedia("(prefers-color-scheme: dark)").addEventListener("change", themeStage);
@@ -1240,6 +1249,17 @@ function onWall(f, a, h, t, y0, mat, off = 0) {
       elec(cyl(0.3, 0.05, x, top - 0.05, z, plate, 20), top - 0.05, 0.05);
       elec(cyl(0.2, 0.02, x, top - 0.07, z, glow, 20), top - 0.07, 0.02);
     }
+    // night lighting: the ceiling spots, down lights and wall lights pooled into one warm light per
+    // 13 ft cell (one light per fitting would be too many for the browser); off by day
+    const cells = new Map();
+    for (const [x, z] of [...E.spot, ...E.down, ...E.wall].map(P)) {
+      const key = Math.floor(x / 13) + "," + Math.floor(z / 13), c = cells.get(key) || { x: 0, z: 0, n: 0 };
+      c.x += x; c.z += z; c.n++; cells.set(key, c);
+    }
+    for (const c of cells.values()) {
+      const l = new THREE.PointLight(0xFFC287, 9 + 5 * c.n, 20, 2);
+      l.position.set(c.x / c.n, top - 1.0, c.z / c.n); l.visible = false; l.userData.night = true; G.add(l);
+    }
     // ceiling fans: down rod, motor, three walnut blades
     for (const p of E.fan) {
       const [x, z] = P(p);
@@ -1335,6 +1355,14 @@ F = { ...FLOORS.f, key: "f" }; G = groups.f;
   ground.rotation.x = -Math.PI / 2; ground.position.set(30, -5.35, 30); ground.receiveShadow = true; scene.add(ground);
 }
 
+// plain ceilings, shown only in the look-up view so the fittings read against them
+const ceilings = ["g", "f"].map(k => {
+  F = { ...FLOORS[k], key: k }; G = groups[k];
+  const r = k === "f" ? R(75, 195, 1645, 1160) : R(95, 355, 1395, 1170);
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(r.w, r.d), M(C.white, { r: 0.9 }));
+  m.rotation.x = Math.PI / 2; m.position.set(r.cx, H_FULL + 0.02, r.cz); m.visible = false; G.add(m); return m;
+});
+
 // ---------- floor modes ----------
 const center = {};
 F = { ...FLOORS.f, key: "f" }; center.f = R(75, 195, 1645, 1160);
@@ -1374,6 +1402,7 @@ function flyTo(tx, ty, tz, dist) {
   anim = { t: 0, fromT: controls.target.clone(), fromP: camera.position.clone(), toT, toP };
 }
 function overview() {
+  if (lookUp) return lookUpView();
   const c = mode === "f" ? center.f : center.g;
   flyTo(c.cx, mode === "b" ? STACK / 2 : 0, c.cz, mode === "b" ? 95 : 72);
 }
@@ -1430,6 +1459,40 @@ composer.addPass(new OutputPass());
 scene.traverse(o => { if (o.isMesh && o.material.isMeshStandardMaterial) o.material.envMapIntensity = o.material.transparent || o.material.metalness > 0.3 ? 1 : 0.4; });
 let realistic = true;
 document.getElementById("c-tog").onclick = e => { showCurtains = !showCurtains; e.currentTarget.setAttribute("aria-pressed", showCurtains); applyWalls(); };
+// day / night: at night the sun becomes dim moonlight, the studio fill drops away and every light is on
+function applyTime() {
+  sun.intensity = night ? 0.12 : 2.6; sun.color.set(night ? 0x8FA6D8 : 0xFFE2BC);
+  hemi.intensity = night ? 0.04 : 0.25;
+  renderer.toneMappingExposure = night ? 1.1 : 0.95;
+  const seen = new Set();
+  scene.traverse(o => {
+    if (o.isLight && o.userData.night) o.visible = night;
+    if (o.isMesh && o.material.isMeshStandardMaterial && !seen.has(o.material)) {
+      const m = o.material; seen.add(m);
+      if (m.userData.envBase === undefined) m.userData.envBase = m.envMapIntensity;
+      m.envMapIntensity = m.userData.envBase * (night ? 0.12 : 1);
+    }
+  });
+  themeStage();
+  document.getElementById("t-day").setAttribute("aria-pressed", !night);
+  document.getElementById("t-night").setAttribute("aria-pressed", night);
+}
+document.getElementById("t-day").onclick = () => { night = false; applyTime(); };
+document.getElementById("t-night").onclick = () => { night = true; applyTime(); };
+// look up: cut the house away below 4'-6", put a ceiling on, and orbit from underneath
+const cut = new THREE.Plane(new THREE.Vector3(0, 1, 0), -4.5);
+function lookUpView() {
+  const c = mode === "f" ? center.f : center.g, y = mode === "f" ? 0 : 0;
+  const toT = new THREE.Vector3(c.cx, y + 6, c.cz), toP = new THREE.Vector3(c.cx + 18, y - 55, c.cz + 30);
+  anim = { t: 0, fromT: controls.target.clone(), fromP: camera.position.clone(), toT, toP };
+}
+document.getElementById("u-tog").onclick = e => {
+  lookUp = !lookUp; e.currentTarget.setAttribute("aria-pressed", lookUp);
+  renderer.clippingPlanes = lookUp ? [cut] : [];
+  ceilings.forEach(m => m.visible = lookUp);
+  if (lookUp) { wallsLow = false; applyWalls(); controls.minPolarAngle = Math.PI * 0.53; controls.maxPolarAngle = Math.PI * 0.97; lookUpView(); }
+  else { controls.minPolarAngle = 0; controls.maxPolarAngle = Math.PI * 0.47; overview(); }
+};
 document.getElementById("e-tog").onclick = e => {
   showElec = !showElec; e.currentTarget.setAttribute("aria-pressed", showElec);
   for (const k of ["g", "f"]) groups[k].children.forEach(o => { if (o.userData.elecLight) o.visible = showElec; });

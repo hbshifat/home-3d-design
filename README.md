@@ -28,6 +28,9 @@ Then open http://localhost:8765/ — the page loads Three.js 0.160.0 from jsDeli
 
 - **Ground floor / 1st floor / Both / Exterior** — Exterior stacks both floors and looks at the street (east) front.
 - **Cutaway / Full walls**, **Labels**, **Realistic** (ambient occlusion + environment light), **Curtains**, **Zoom** (− / slider / + / Fit).
+- **Day / Night** — at night the sun turns to dim moonlight and every light is on.
+- **Look up** — cuts the house away below 4'-6" and orbits from underneath, to see the ceiling lights, fans and fittings.
+- **Electrical** — shows or hides the electrical layout.
 - Room list flies the camera to a room; the color panel edits the 60-30-10 palette (saved in the browser).
 
 ## Tools
