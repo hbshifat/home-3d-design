@@ -47,6 +47,12 @@ Presets in the viewer: Warm earthy, Scandi light, Moody dark, Coastal.
 13. **Exterior** after the reference render, on the street (east) face: facing-brick foyer wall with wall light, gates, low jali wall, terrace planters, brick box with window and jali on Bed-01.
 14. **Roof** from sheets A.03 and A.12: stair head and corridor under Slab-1 (10'-6"), east terrace under Slab-2 (13'-6") with round cut-outs, perforated north wall. The two roof bedrooms (Bed-05, Bed-06) were then removed at the owner's request; that part is open roof with parapets.
 15. **Boundary wall** from the ground floor plan: 7 ft walls on the north, back (west) and south sides, and on the street side a low wall with a jali band before the formal living planter, the car and pedestrian gates, and pillars.
+16. **Measurement audit** against sheet A.16 (ground) and A.20 (1st floor), mapped at one scale for both axes:
+    most rooms, walls, doors and windows were within about 0.5 ft. Fixed: kitchen balcony depth (it ran over the
+    common toilet), the west side steps and side path (+4'-6" down to +1'-6"), the planter on the street side
+    running to the TV wall line, the formal living north wall over the jali strip, room labels (kitchen
+    10'-10" × 16'-5", storage 6'-7" × 10'-8", stair 17'-6" × 7'-0", parking 19'-3" × 8'-2"), and the Bed-01 brick
+    box proportions from the street elevation (8'-0" jali, 5'-6" window).
 
 ## Decisions made by the owner
 

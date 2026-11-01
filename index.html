@@ -683,19 +683,20 @@ function railing(a) { const r = R(...a); rbox(r, 3.4, M(C.glass, { r: 0.1, t: 0.
 
 // ================= GROUND FLOOR =================
 F = { ...FLOORS.g, key: "g" }; G = groups.g;
-room({ name: "Storage & Laundry", dim: "6'-7\" × 10'-7\"", r: [103, 365, 245, 595], walls: "nwe", tile: [24, 24] });   // open to the kitchen balcony
-room({ name: "Kitchen Balcony", dim: "6'-7\" × 7'-10\"", r: [103, 600, 245, 825], walls: "ws", tile: [6, 36] });
-room({ name: "Kitchen", dim: "12'-8\" × 16'-5\"", r: [250, 370, 515, 720], walls: "nws", tile: [12, 24] });
+room({ name: "Storage & Laundry", dim: "6'-7\" × 10'-8\"", r: [103, 365, 245, 595], walls: "nwe", tile: [24, 24] });   // open to the kitchen balcony
+room({ name: "Kitchen Balcony", dim: "6'-7\" × 7'-10\"", r: [103, 600, 245, 725], walls: "ws", tile: [6, 36] });
+room({ name: "Kitchen", dim: "10'-10\" × 16'-5\"", r: [250, 370, 515, 720], walls: "nws", tile: [12, 24] });
 room({ name: "Dining", dim: "16'-3\" × 21'-5\"", r: [515, 370, 865, 790], walls: "n", tile: [32, 32] });   // open to formal living, no wall between
 room({ name: "Toilet", dim: "8'-0\" × 4'-5\"", r: [205, 725, 410, 825], floor: "wet", tile: [12, 24] });
 room({ name: "Guest Bed", dim: "13'-0\" × 12'-3\"", r: [205, 830, 485, 1110], tile: [32, 32] });
-room({ name: "Stair", dim: "17'-0\" × 7'-0\"", r: [490, 790, 865, 960], walls: "w", tile: [32, 32] });
+room({ name: "Stair", dim: "17'-6\" × 7'-0\"", r: [490, 790, 865, 960], walls: "w", tile: [32, 32] });
 room({ name: "Courtyard", dim: "brick jali + garden", r: [490, 965, 865, 1170], walls: "ws", floor: "grass", labelAt: [677, 1110] });
 room({ name: "Formal Living", dim: "17'-9\" × 18'-0\"", r: [870, 370, 1260, 760], walls: "n", tile: [32, 32] });
 room({ name: "Foyer", dim: "5'-0\" × 21'-4\"", r: [870, 760, 980, 1170], walls: "", tile: [32, 32] });   // walls built below, with glass panels
-room({ name: "Parking", dim: "19'-3\" × 9'-9\"", r: [985, 770, 1390, 940], walls: "", floor: "paving", tile: [8, 8], level: -4.5 });
+room({ name: "Parking", dim: "19'-3\" × 8'-2\"", r: [985, 770, 1390, 940], walls: "", floor: "paving", tile: [8, 8], level: -4.5 });
 room({ name: "Entrance", dim: "7'-0\" × 10'-0\"", r: [1027, 942, 1133, 1131], walls: "", floor: "paving", tile: [12, 36], level: -1.5 });
-room({ r: [1290, 310, 1395, 740], walls: "", floor: "grass" });
+room({ r: [1290, 310, 1395, 764], walls: "", floor: "grass" });   // planter along the street side, to the TV wall line
+wallPiece([1262, 366, 1290, 375], 0, H_FULL);                       // formal living north wall runs on over the jali strip
 
 // laundry
 box(...(() => { const r = R(105, 375, 145, 440); return [r.w, 5.8, r.d, r.cx, 0, r.cz]; })(), M(C.white, { r: 0.4 }));
@@ -817,7 +818,13 @@ wallPiece([866, 1166, 984, 1174], 0, H_FULL);
 // parking
 { const n = G.children.length; car([1010, 785, 1330, 925]); G.children.slice(n).forEach(o => o.position.y -= 4.5); }
 // plinth: the house floor stands 5'-0" above the road (sheet A.01 levels)
-{ const pl = M(0xB4ADA0); for (const a of [[103, 365, 985, 1170], [985, 365, 1395, 770]]) { const r = R(...a); box(r.w, 4.7, r.d, r.cx, -5, r.cz, pl, false); } }
+{ const pl = M(0xB4ADA0); for (const a of [[103, 365, 985, 832], [200, 832, 985, 1170], [985, 365, 1395, 770]]) { const r = R(...a); box(r.w, 4.7, r.d, r.cx, -5, r.cz, pl, false); } }
+// west side: six steps down from the kitchen balcony landing to the side path (sheet A.16), path at +1'-6"
+{
+  const step = (a, top) => { const r = R(...a); box(r.w, top + 5, r.d, r.cx, -5, r.cz, tileMat(C.paving, r.w, r.d, 12, 36)); };
+  for (let i = 0; i < 6; i++) step([95, 832 + i * 18, 200, 850 + i * 18], -0.5 - i * 0.5);
+  step([95, 940, 200, 1170], -3.5);
+}
 // front entrance steps (sheet A.01): outside +0'-0", steps 1–6 rise 6" each to +3'-0",
 // entrance platform (7) at +3'-6", step 8 at +4'-6" by the main door, foyer +5'-0"
 {
@@ -1042,10 +1049,10 @@ exterior(() => {
   // triangle jali on the right (plan top), big framed window on the left
   const B = (a, y0, y1) => slab(a, y0, y1, brickClad), X0 = 1590, X1 = 1650;
   B([X0, 205, X1, 645], -0.3, 1.0); B([X0, 205, X1, 645], 8.2, top + 0.3);
-  B([X0, 205, X1, 219], 1.0, 8.2); B([X0, 425, X1, 437], 1.0, 8.2); B([X0, 631, X1, 645], 1.0, 8.2);
-  jaliAt([X1 - 8, 219, X1 - 3, 425], 1.0, 7.2);
-  slab([X1 - 8, 437, X1 - 5, 631], 1.0, 8.2, M(C.glass, { r: 0.08, m: 0.4 }));
-  for (const z of [437, 534, 631]) slab([X1 - 9, z - 1, X1 - 4, z + 1], 1.0, 8.2, M(C.black));
+  B([X0, 205, X1, 219], 1.0, 8.2); B([X0, 440, X1, 450], 1.0, 8.2); B([X0, 602, X1, 645], 1.0, 8.2);
+  jaliAt([X1 - 8, 219, X1 - 3, 440], 1.0, 7.2);
+  slab([X1 - 8, 450, X1 - 5, 602], 1.0, 8.2, M(C.glass, { r: 0.08, m: 0.4 }));
+  for (const z of [450, 526, 602]) slab([X1 - 9, z - 1, X1 - 4, z + 1], 1.0, 8.2, M(C.black));
   planterGreens([X1, 205, X1 + 24, 645], -0.3);
   // terrace (left on the reference): planter along its street edge with greenery spilling over
   planterGreens([1610, 804, 1636, 1134], 0);
