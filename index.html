@@ -715,7 +715,7 @@ function tv(a, along = "x") {
   box(w, 3.1, d, r.cx, 3.4, r.cz, M(C.black, { r: 0.3 }));
 }
 function wc(px, py) { const [x, z] = ft(px, py); box(1.3, 1.3, 2.0, x, 0, z, M(C.white, { r: 0.3 })); }
-function shower(a) { const r = R(...a); rbox(r, 0.15, M(C.wetTile)); rbox(r, 6.8, M(C.glass, { r: 0.1, t: 0.28 }), 0.15, 0.05); }
+function shower(a) { const r = R(...a); rbox(r, 0.15, M(C.wetTile)); rbox(r, 5.85, M(C.glass, { r: 0.1, t: 0.28 }), 0.15, 0.05); }   // 6'-0" screen, clear of the geyser above
 function basin(a) { const r = R(...a); rbox(r, 2.7, M(C.walnut)); rbox(r, 0.2, M(C.white, { r: 0.3 }), 2.7, 0.15); }
 // Three-flight stair as drawn (working drawing: 3 steps, landing, 12 steps, landing, 4 steps):
 //   flight 1 starts at the west (guest bed) wall and climbs south,
@@ -830,7 +830,7 @@ wardrobe([315, 683, 470, 718], 7.4);
 // dining
 table([658, 455, 722, 672], 2.5, C.stone);
 [485, 540, 595, 645].forEach(y => { chair(630, y, [690, y]); chair(748, y, [690, y]); });
-basin([808, 375, 860, 410]);
+basin([820, 375, 872, 410]);
 // behind the stair: W-06 full-height glass (14'-2" × 9'-6") and the SW-01 glass door (3'-4" × 9'-6") to the courtyard
 glassPanel([494, 945, 788, 949]);
 glassPanel([790, 945, 863, 949]);
@@ -873,7 +873,7 @@ rug([290, 938, 390, 1010]);
 bed([262, 965, 368, 1105], "s");
 wardrobe([210, 833, 340, 870]);
 box(R(342, 833, 382, 860).w, 6.5, 0.2, R(342, 833, 382, 860).cx, 0, R(342, 833, 382, 860).z0 + .1, M(0xC9D2D0, { r: 0.05, m: 0.6 }));
-cushionSeat([453, 972, 482, 1070]);
+cushionSeat([440, 972, 470, 1060]);            // window seat, clear of the W-05 glass and the counter
 counter([388, 1062, 452, 1105], 2.5, C.oak, C.oak);
 wardrobe([455, 1073, 485, 1106], 6.2);
 curtain([214, 930, 220, 1015], true);
@@ -998,7 +998,7 @@ const voidEdge = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.PlaneG
 voidEdge.rotation.x = -Math.PI / 2; voidEdge.position.set(v.cx, 0.02, v.cz); voidEdge.computeLineDistances(); G.add(voidEdge);
 
 // sister bed
-rug([220, 225, 310, 380]); bed([250, 255, 432, 420], "e");
+rug([220, 225, 310, 380]); bed([250, 275, 432, 440], "e");   // side tables clear of the W-03 glass
 panelWall([106, 215, 113, 640], C.oak, 8.6);
 curtain([290, 217, 413, 223], true);
 curtain([117, 400, 123, 597], true);           // Bed-03 west: W-04
@@ -1029,7 +1029,7 @@ panelWall([1228, 212, 1236, 440], C.brick, 8.4);
 curtain([1272, 217, 1475, 223], true); curtain([1573, 281, 1579, 590], true);
 // bother bed
 rug([170, 935, 300, 1025]); bed([200, 968, 365, 1150], "s");
-wardrobe([487, 802, 533, 990]); cushionSeat([487, 995, 533, 1105]);
+wardrobe([487, 802, 533, 990]); cushionSeat([480, 995, 513, 1100]);   // window seat, clear of the W-06 glass
 counter([385, 1108, 530, 1155], 2.5, C.oak, C.oak); chair(455, 1090, [455, 1130]);
 box(R(150, 805, 235, 812).w, 6.5, 0.2, R(150, 805, 235, 812).cx, 0, R(150, 805, 235, 812).cz, M(0xC9D2D0, { r: 0.05, m: 0.6 }));
 wardrobe([110, 805, 148, 830], 5.5);
@@ -1047,7 +1047,7 @@ cushionSeat([1040, 960, 1090, 1122]);
 counter([1040, 775, 1088, 955], 3.4, C.walnut, C.stone);
 panelWall([1031, 780, 1037, 955], C.brick, 9.2);
 curtain([1376, 667, 1382, 1153], true);
-stair([550, 775, 1028, 955], undefined, true);
+stair([550, 770, 1028, 938], undefined, true);   // from the corridor edge to just short of the W-07 glass line
 // terrace planter
 counter([1575, 812, 1625, 1126], 1.6, C.charcoal, C.grass);
 [850, 930, 1010, 1090].forEach(y => plant(1600, y, 0.9));
@@ -1138,7 +1138,8 @@ function barGate(a, y0, h) {
 // ground floor: slab over the ground floor, facing-brick foyer wall with a wall light, gates, low jali wall
 F = { ...FLOORS.g, key: "g" }; G = groups.g;
 exterior(() => {
-  for (const a of [[103, 365, 1290, 965], [103, 965, 490, 1180], [865, 965, 1290, 1180]]) slab(a, H_FULL, H_FULL + 0.9);
+  // with the stairwell left open over the ground stair (x 468–862, between the corridor edge and the void)
+  for (const a of [[103, 365, 1290, 807], [103, 807, 468, 965], [862, 807, 1290, 965], [103, 965, 490, 1180], [865, 965, 1290, 1180]]) slab(a, H_FULL, H_FULL + 0.9);
   slab([988, 770, 994, 1029], 0, H_FULL, brickClad);                   // facing brick on the foyer's street wall
   slab([988, 1133, 994, 1170], 0, H_FULL, brickClad);
   wallLight(996, 1150, 6.4);
@@ -1338,8 +1339,23 @@ function wallFace(x, z) {
   if (w >= d) { const s = z >= cz ? 1 : -1; return { x: Math.min(Math.max(x, cx - w / 2 + 0.4), cx + w / 2 - 0.4), z: cz + s * d / 2, nx: 0, nz: s, alongX: true }; }
   const s = x >= cx ? 1 : -1; return { x: cx + s * w / 2, z: Math.min(Math.max(z, cz - d / 2 + 0.4), cz + d / 2 - 0.4), nx: s, nz: 0, alongX: false };
 }
+// Windows stand proud of the wall faces; a fitting over one sits in front of its glass instead of inside it.
+function glassProud(f, a, y0, h) {
+  let out = 0;
+  for (const m of walls) {
+    if (m.parent !== G || m.material.transparent || m.material.color?.getHex() !== C.glass || m.geometry.type !== "BoxGeometry") continue;
+    const { width: w, depth: d } = m.geometry.parameters, c = m.userData.cut, p = m.position;
+    if (c.y0 >= y0 + h || c.y0 + c.h <= y0 || (w >= d) !== f.alongX) continue;
+    const [u, uc, ul, n, nc, nl] = f.alongX ? [f.x, p.x, w, f.nz, p.z, d] : [f.z, p.z, d, f.nx, p.x, w];
+    if (Math.abs(u - uc) >= ul / 2 + a / 2) continue;
+    const face = f.alongX ? f.z : f.x;
+    if (Math.abs(face - nc) < nl / 2 + 0.01) out = Math.max(out, (nc + n * nl / 2 - face) * n);
+  }
+  return out;
+}
 // a box on a wall face: a = along the wall, h = height, t = depth off the wall
 function onWall(f, a, h, t, y0, mat, off = 0) {
+  off += glassProud(f, a, y0, h);
   const x = f.x + f.nx * (t / 2 + off), z = f.z + f.nz * (t / 2 + off);
   return elec(f.alongX ? box(a, h, t, x, y0, z, mat, false) : box(t, h, a, x, y0, z, mat, false), y0, h);
 }
@@ -1414,9 +1430,9 @@ function onWall(f, a, h, t, y0, mat, off = 0) {
     // geysers: white horizontal tank high on the toilet wall
     for (const p of E.geyser) {
       const f = wallFace(...P(p)); if (!f) continue;
-      const g = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.55, 2.0, 24), plate);
+      const g = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.55, 2.0, 24), plate), o = 0.62 + glassProud(f, 2.0, 6.05, 1.1);
       g.rotation[f.alongX ? "z" : "x"] = Math.PI / 2;
-      g.position.set(f.x + f.nx * 0.62, 6.6, f.z + f.nz * 0.62); g.castShadow = true; G.add(g); elec(g, 6.05, 1.1);
+      g.position.set(f.x + f.nx * o, 6.6, f.z + f.nz * o); g.castShadow = true; G.add(g); elec(g, 6.05, 1.1);
       onWall(f, 0.15, 0.6, 0.08, 5.5, metal, 0.4);
     }
     // CCTV cameras at about 8'-6": bracket and a camera body pointing out from the wall
@@ -1492,7 +1508,7 @@ function painting(px, py, w, h, kind, yc = 5.3, frame = "oak") {
   tall(art, yc - h / 2, h);
 }
 F = { ...FLOORS.g, key: "g" }; G = groups.g;
-painting(1073, 372, 4.2, 2.0, "leaves", 4.75);         // formal living, over the sofa
+painting(1082, 372, 4.2, 2.0, "leaves", 4.75);         // formal living, over the sofa
 painting(580, 372, 2.4, 3.2, "lines", 5.2, "black");   // dining, north wall by the pantry
 painting(493, 845, 2.4, 3.4, "arches", 5.2);           // stair, west wall at the foot of the flight
 painting(873, 1000, 2.2, 3.2, "fields", 5.2, "black"); // foyer, facing the entrance

@@ -67,6 +67,10 @@ Presets in the viewer: Warm earthy, Scandi light, Moody dark, Coastal.
 19. **Stairwell**: the 1st floor floor is open over the stair, so the ground stair shows from above. The ground stair
     now climbs the full storey and lands level with the 1st floor. An oak and steel railing runs across the open
     well at the top of the stair, between the arriving and departing flights.
+20. **Clash check** (bounding-box script over the whole model): the 1st floor stair no longer runs through the W-07
+    glass, brick jali and planter; the slab between the floors is open over the stairwell; shower screens are 6'-0"
+    so they clear the geysers; window seats, a bedside table, the dining basin and a painting moved clear of window
+    glass; wall fittings over a window sit in front of its glass.
 
 ## Decisions made by the owner
 
