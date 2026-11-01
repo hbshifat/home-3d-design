@@ -1134,9 +1134,23 @@ exterior(() => {
   jaliAt([1026, 969, 1034, 1155], RT, S2 - 1.2 - RT);   // on the room's east wall line
   // shed columns: the west one sits on the roof room's east wall line, flush with the wall and its frame fin
   slab([1026, 625, 1052, 643], RT, S2 - 1.2); slab([1368, 624, 1386, 642], RT, S2 - 1.2);
-  slab([1016, 205, 1377, 260], S2 - 1.2, S2); slab([1016, 487, 1377, 1170], S2 - 1.2, S2);
-  slab([1016, 260, 1108, 487], S2 - 1.2, S2); slab([1333, 260, 1377, 487], S2 - 1.2, S2);
-  slab([1108, 260, 1333, 487], S2 - 1.2, S2, holed);
+  // Slab-2 with its round cut-outs as on A.12: 4 columns × 5 rows of 1'-0" holes, four of them 1'-8".
+  // Column centres 4'-3", 6'-5", 8'-7", 10'-9" from the west edge of the 13'-7" slab; rows measured
+  // from the north edge of the 36'-5" slab.
+  { const sx = (1377 - 1016) / 13.58, sz = (1170 - 205) / 36.42;
+    const P = (fx, fz) => ft(1016 + fx * sx, 205 + fz * sz);
+    const [ax, az] = P(0, 0), [bx, bz] = P(13.58, 36.42);
+    const shape = new THREE.Shape();
+    shape.moveTo(ax, -az); shape.lineTo(bx, -az); shape.lineTo(bx, -bz); shape.lineTo(ax, -bz); shape.closePath();
+    const rows = [3.2, 4.77, 6.28, 8.13, 10.21], big = { "0,3": 1, "1,0": 1, "2,3": 1, "2,4": 1 };
+    [4.25, 6.42, 8.58, 10.75].forEach((cx, c) => rows.forEach((cz, r) => {
+      const [x, z] = P(cx, cz), rad = big[c + "," + r] ? 0.83 : 0.5, h = new THREE.Path();
+      h.absarc(x, -z, rad, 0, Math.PI * 2, true); shape.holes.push(h);
+    }));
+    const geo = new THREE.ExtrudeGeometry(shape, { depth: 1.2, bevelEnabled: false, curveSegments: 24 });
+    geo.rotateX(-Math.PI / 2);
+    const m = new THREE.Mesh(geo, concrete); m.position.y = S2 - 1.2;
+    m.castShadow = true; m.receiveShadow = true; G.add(m); }
   // facing-brick parapet around the roof of the Bed-01 brick box
   slab([1377, 205, 1650, 213], RT, RT + 4, brickClad); slab([1377, 637, 1650, 645], RT, RT + 4, brickClad); slab([1642, 205, 1650, 645], RT, RT + 4, brickClad);
 });
