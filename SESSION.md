@@ -60,6 +60,8 @@ Presets in the viewer: Warm earthy, Scandi light, Moody dark, Coastal.
     wall lights (7'-6"), exhaust fans, split AC units (7'-0" top), switch boards (4'-4"), and bed side (2'-0"),
     fridge (1'-6") and counter (42") sockets on both floors. Symbols were found by color on the rendered sheets
     (`tools/electrical/`) and mapped onto the plan; wall items snap to the nearest wall face. Electrical on/off button.
+    Then the smaller points: geysers (from the geyser layouts), CCTV cameras, Wi-Fi mesh routers, SDBs, kitchen hood
+    multi socket, basin sockets (4'-4"), calling bell (7'-6") and dish (Akash line) outlets.
 
 ## Decisions made by the owner
 
