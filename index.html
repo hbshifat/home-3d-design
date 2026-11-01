@@ -543,7 +543,7 @@ function grill(r, alongX, y0, h, t) {
   for (let u = b + gap / 2; u < c; u += gap) at(u, y0, s, h);
   if (len > 3) for (const u of [b, c]) at(u, y0, 0.1, h);   // flat dividers between the sections
 }
-function glassPanel(a, h = H_FULL, y0 = 0) {   // glass uses M(C.glass, { r: 0.1, t: 0.3 }), reflective through the environment light
+function glassPanel(a, h = H_FULL, y0 = 0, withGrill = true) {   // glass uses M(C.glass, { r: 0.1, t: 0.3 }), reflective through the environment light
   const r = R(...a), alongX = r.w > r.d, len = alongX ? r.w : r.d;
   tall(box(alongX ? len : 0.08, h, alongX ? 0.08 : len, r.cx, y0, r.cz, M(C.glass, { r: 0.1, t: 0.3 }), false), y0, h);
   const n = Math.max(1, Math.round(len / 4));
@@ -551,7 +551,7 @@ function glassPanel(a, h = H_FULL, y0 = 0) {   // glass uses M(C.glass, { r: 0.1
     const f = i / n;
     tall(box(0.12, h, 0.12, alongX ? r.x0 + f * len : r.cx, y0, alongX ? r.cz : r.z0 + f * len, M(C.black)), y0, h);
   }
-  grill(r, alongX, y0, h, 0.14);
+  if (withGrill) grill(r, alongX, y0, h, 0.14);
 }
 // Plain wall piece over a plan rect between two heights (around windows and door heads).
 function wallPiece(a, y0, h) {
@@ -853,7 +853,11 @@ room({ name: "Corridor", dim: "5'-0\" wide", r: [380, 650, 1035, 770], walls: ""
 room({ name: "Bother Bed", dim: "15'-6\" × 13'-1\"", r: [105, 800, 535, 1160], tile: [32, 32] });
 room({ name: "Stair", dim: "17'-6\" × 6'-3\"", r: [545, 770, 1030, 960], walls: "", tile: [32, 32] });
 room({ name: "Family Living", dim: "12'-9\" × 18'-4\"", r: [1035, 655, 1395, 1160], walls: "s", tile: [32, 32]});
-room({ name: "Terrace", dim: "6'-1\" × 12'-0\"", r: [1395, 804, 1632, 1134], walls: "ns", floor: "paving" });
+room({ name: "Terrace", dim: "6'-1\" × 12'-0\"", r: [1395, 804, 1632, 1134], walls: "", floor: "paving" });
+// front balcony (terrace): low side walls instead of full-height ones, and a glass railing along the front
+// above the planter, as on the reference render
+wallPiece([1395, 800, 1636, 808], 0, 3.6); wallPiece([1395, 1130, 1636, 1138], 0, 3.6);
+glassPanel([1630, 808, 1634, 1130], 2.1, 1.5, false);   // railing glass, no grill
 // side walls of the L-shaped bedrooms
 (() => { const a = R(590, 450, 598, 645); wall(a.cx, a.z0, a.cx, a.z1); const b = R(1080, 450, 1090, 645); wall(b.cx, b.z0, b.cx, b.z1); })();
 (() => { const s = R(105, 645, 1225, 650); wall(R(105,0,0,0).x0, s.cz, R(590,0,0,0).x0, s.cz); wall(R(598,0,0,0).x0, s.cz, R(1590,0,0,0).x0, s.cz); })();
@@ -1042,6 +1046,7 @@ F = { ...FLOORS.f, key: "f" }; G = groups.f;
 exterior(() => {
   const top = H_FULL + 1.2;
   for (const a of [[105, 205, 1595, 804], [105, 804, 1395, 964], [105, 964, 545, 1160], [1030, 964, 1395, 1160]]) slab(a, H_FULL, top);
+  slab([1395, 796, 1648, 1142], H_FULL, top);                          // shade slab over the front balcony
   // parapets (4 ft, parapet level +31'-0") on the open roof edges
   slab([594, 205, 1016, 213], top, top + 4); slab([1385, 645, 1395, 1160], top, top + 4);
   slab([1590, 645, 1600, 808], top, top + 4); slab([1395, 800, 1600, 808], top, top + 4);
