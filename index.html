@@ -655,18 +655,21 @@ function stair(a, rise = H_FULL + 0.3) {
   const t3 = (zL - r.z0) / n3;
   for (let i = 0; i < n3; i++) solid(wE, y2 + (i + 1) * riser, t3, r.x1 - wE / 2, zL - (i + .5) * t3);
 
-  // handrails along the open stairwell side of each flight
+  // railing as in the video: flat honey-oak handrail on slim dark steel balusters, square oak newel posts
+  const oak = M(C.oak, { r: 0.45 }), steel = M(0x2B2B2B, { m: 0.6, r: 0.4 });
   const rail = (ax, ay, az, bx, by, bz) => {
     const A = new THREE.Vector3(ax, ay + 3, az), B = new THREE.Vector3(bx, by + 3, bz);
     const len = A.distanceTo(B);
-    const m = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, len, 8), M(C.black));
+    const m = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.12, len + 0.2), oak);
     m.position.copy(A).add(B).multiplyScalar(0.5);
-    m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), B.clone().sub(A).normalize());
-    m.castShadow = true; G.add(m);
-    for (let k = 0; k <= 3; k++) {
-      const f = k / 3;
-      box(0.08, 3, 0.08, ax + (bx - ax) * f, ay + (by - ay) * f, az + (bz - az) * f, M(C.black));
+    m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), B.clone().sub(A).normalize());
+    m.castShadow = true; m.receiveShadow = true; G.add(m);
+    const n = Math.max(2, Math.round(Math.hypot(bx - ax, bz - az) / 0.38));
+    for (let k = 1; k < n; k++) {
+      const f = k / n;
+      cyl(0.03, 2.95, ax + (bx - ax) * f, ay + (by - ay) * f, az + (bz - az) * f, steel, 6);
     }
+    for (const [x, y, z] of [[ax, ay, az], [bx, by, bz]]) box(0.3, 3.35, 0.3, x, y, z, oak);
   };
   rail(x2a, 0, r.z0, x2a, y1, zL);                 // flight 1, east edge
   rail(x2a, y1, zL, x2b, y2, zL);                  // flight 2, north edge
