@@ -1093,16 +1093,15 @@ exterior(() => {
   slab([940, 644, 1010, 658], RT, RT + 7, steel);                      // steel door, about 3'-4" × 7'-0"
   for (const y of [1.2, 3.5, 5.8]) slab([942, 643, 1008, 659], RT + y, RT + y + 0.08, M(0x3E4245, { m: 0.75, r: 0.35 }));
   slab([998, 641, 1002, 661], RT + 3.0, RT + 3.9, M(C.black, { m: 0.6, r: 0.3 }));   // handle
-  // ---- roof room facade: triangle jali panel on the street (east) face, a deep white frame,
+  // ---- roof room facade: a deep white frame on the street (east) face,
   // slatted timber screen hiding the water tanks, and warm uplights / LED strip / door light
   const rh = S1 - RT;
-  jaliAt([1034, 676, 1040, 918], RT, rh - 1.2);                        // jali panel, same blocks as below
   slab([535, 625, 1052, 969], S1 - 1.2, S1 + 0.4);                     // frame top, thick and overhanging
   for (const [z0, z1] of [[625, 643], [951, 969]]) slab([1034, z0, 1052, z1], RT, S1 - 1.2);   // frame side fins
   slab([1034, 643, 1052, 951], RT, RT + 0.5);                           // frame sill
   const glowMat = new THREE.MeshBasicMaterial({ color: 0xFFD49A });
   { const r = R(1046, 645, 1050, 949); const strip = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.06, r.d), glowMat); strip.position.set(r.cx, S1 - 1.25, r.cz); G.add(strip); }
-  for (const pz of [700, 797, 894]) {                                   // uplights washing the jali
+  for (const pz of [700, 797, 894]) {                                   // uplights washing the wall
     const [x, z] = ft(1046, pz);
     box(0.35, 0.25, 0.35, x, RT + 0.5, z, M(C.black, { m: 0.5, r: 0.4 }));
     const l = new THREE.SpotLight(0xFFB870, 30, 13, 0.55, 0.7, 2); l.position.set(x, RT + 0.8, z); l.target.position.set(x - 0.6, RT + 9, z); G.add(l, l.target);
@@ -1115,9 +1114,8 @@ exterior(() => {
     for (let x = 585; x <= 915; x += 11) { fin(x, 692, true); fin(x, 802, true); }
     for (let z = 700; z <= 800; z += 11) fin(918, z, false);
     slab([583, 688, 922, 806], y0 + h, y0 + h + 0.25, wood); }
-  // the courtyard void edge at roof level: small jali, glass railing, facing brick
-  jaliAt([551, 950, 638, 956], RT, 4);
-  slab([638, 951, 928, 955], RT, RT + 3.5, M(C.glass, { r: 0.1, t: 0.3 }));
+  // the courtyard void edge at roof level: glass railing, facing brick
+  slab([551, 951, 928, 955], RT, RT + 3.5, M(C.glass, { r: 0.1, t: 0.3 }));   // glass railing along the void edge
   slab([928, 948, 1019, 956], RT, RT + 4, brickClad);
   // Slab-1 over the stair / corridor band
   slab([549, 633, 1036, 961], S1 - 1.2, S1);
