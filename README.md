@@ -33,6 +33,8 @@ Then open http://localhost:8765/ — the page loads Three.js 0.160.0 from jsDeli
 - **Day / Night** — at night the sun turns to dim moonlight and every light is on.
 - **Look up** — cuts the house away below 4'-6" and orbits from underneath, to see the ceiling lights, fans and fittings.
 - **Electrical** — shows or hides the electrical layout.
+- **Settings** — hides or shows the toolbar and side panel for a clean full-screen view.
+- **Phones and tablets** — the 3D view sits above the panel, the toolbar scrolls sideways, render quality is lighter (Realistic starts off), and touch works: drag to orbit, pinch to zoom, two-finger drag to pan.
 - Room list flies the camera to a room; the color panel edits the 60-30-10 palette (saved in the browser).
 
 ## Tools
