@@ -942,12 +942,12 @@ wallPiece([866, 1166, 984, 1174], 0, H_FULL);
   for (let i = 0; i < 6; i++) step([95, 832 + i * 18, 200, 850 + i * 18], -0.5 - i * 0.5);
   step([95, 940, 200, 1170], -3.5);
 }
-// front entrance steps (sheet A.01): outside +0'-0", steps 1–6 rise 6" each to +3'-0",
+// front entrance steps: outside +0'-0", three steps of 1'-0" each to +3'-0" (owner's change from A.01's six),
 // entrance platform (7) at +3'-6", step 8 at +4'-6" by the main door, foyer +5'-0"
 {
   const LV = l => l - 5;
   const block = (a, top, tile = [12, 36]) => { const r = R(...a); box(r.w, top - LV(0), r.d, r.cx, LV(0), r.cz, tileMat(C.paving, r.w, r.d, ...tile)); };
-  [1133, 1150, 1167, 1185, 1203, 1220].forEach((x0, i, xs) => block([x0, 942, xs[i + 1] ?? 1238, 1086], LV(3.0 - i * 0.5)));
+  [1133, 1168, 1203].forEach((x0, i, xs) => block([x0, 942, xs[i + 1] ?? 1238, 1086], LV(3.0 - i * 1.0)));
   block([984, 942, 1027, 1131], LV(4.5));
   box(R(1027, 942, 1133, 1131).w, 3.2, R(1027, 942, 1133, 1131).d, R(1027, 942, 1133, 1131).cx, LV(0), R(1027, 942, 1133, 1131).cz, M(0xB4ADA0), false);
   block([984, 1131, 1133, 1168], LV(3.5));

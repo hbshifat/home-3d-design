@@ -40,6 +40,7 @@ Presets in the viewer: Warm earthy, Scandi light, Moody dark, Coastal.
    - floor tiles: common 32×32", kitchen/toilets 12×24", storage 24×24", balcony 6×36", parking 8×8", entrance 12×36";
    - brick jali as the triangle-block pattern from the south elevation.
 7. **Main door** per detail D-01: 3'-4" leaf with perforated brass panel, 1'-2" glass sidelight. **Front steps** per plan levels (+0'-0" to +5'-0"), plinth, road-level parking.
+   The owner later changed the front steps from six to three (1'-0" each, +0'-0" to +3'-0").
 8. **Walls**: neighbouring rooms' walls merged; missing walls added; generator room removed; storage/kitchen-balcony wall removed.
 9. **Wooden slat screen** between dining and drawing room (from photo).
 10. **Safety grill** on every window and glass panel (pattern from photo, MS square bars at about 4").
