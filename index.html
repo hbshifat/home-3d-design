@@ -1083,11 +1083,12 @@ exterior(() => {
   // edged with 4 ft parapets
   slab([105, 205, 113, 1160], RT, RT + 4); slab([105, 205, 594, 213], RT, RT + 4);
   slab([105, 1152, 549, 1160], RT, RT + 4); slab([541, 961, 549, 1160], RT, RT + 4);
-  // stair room (roof top room): exposed brick walls, steel door onto the open roof by the stair arrival
-  const BW = a => slab(a, RT, S1 - 1.2, brickClad);
+  // stair room (roof top room): brick walls plastered and painted like the rest of the house, steel door
+  // onto the open roof by the stair arrival
+  const BW = a => slab(a, RT, S1 - 1.2, concrete);
   BW([541, 633, 549, 961]); BW([1026, 633, 1034, 961]);
   BW([549, 646, 938, 656]); BW([1012, 646, 1026, 656]);
-  slab([938, 646, 1012, 656], RT + 7, S1 - 1.2, brickClad);            // brick over the door
+  slab([938, 646, 1012, 656], RT + 7, S1 - 1.2, concrete);             // wall over the door
   const steel = M(0x5A5E62, { m: 0.75, r: 0.35 });
   slab([940, 644, 1010, 658], RT, RT + 7, steel);                      // steel door, about 3'-4" × 7'-0"
   for (const y of [1.2, 3.5, 5.8]) slab([942, 643, 1008, 659], RT + y, RT + y + 0.08, M(0x3E4245, { m: 0.75, r: 0.35 }));
