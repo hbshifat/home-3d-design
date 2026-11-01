@@ -1130,8 +1130,10 @@ exterior(() => {
   // east terrace frame: perforated north wall, solid south wall, two free columns, Slab-2 with round cut-outs
   slab([1016, 205, 1377, 220], RT, S2 - 1.2, holed);
   // south (left from the street) side of the roof top shed: brick jali between end piers
-  slab([970, 1155, 990, 1170], RT, S2 - 1.2); slab([1357, 1155, 1377, 1170], RT, S2 - 1.2);
-  jaliAt([990, 1158, 1357, 1167], RT, S2 - 1.2 - RT);
+  slab([1012, 1155, 1032, 1170], RT, S2 - 1.2); slab([1357, 1155, 1377, 1170], RT, S2 - 1.2);
+  jaliAt([1032, 1158, 1357, 1167], RT, S2 - 1.2 - RT);
+  // the next side (west) continues as brick jali from the corner pier up to where the roof top room ends
+  jaliAt([1018, 961, 1027, 1155], RT, S2 - 1.2 - RT);
   for (const [x, y] of [[1016, 633], [1377, 633]]) slab([x - 9, y - 9, x + 9, y + 9], RT, S2 - 1.2);
   slab([1016, 205, 1377, 260], S2 - 1.2, S2); slab([1016, 487, 1377, 1170], S2 - 1.2, S2);
   slab([1016, 260, 1108, 487], S2 - 1.2, S2); slab([1333, 260, 1377, 487], S2 - 1.2, S2);
