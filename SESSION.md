@@ -46,7 +46,7 @@ Presets in the viewer: Warm earthy, Scandi light, Moody dark, Coastal.
 12. **Curtains** with pleats, drapes and sheers on every living-space window; Curtains on/off button. **Zoom** controls.
 13. **Exterior** after the reference render, on the street (east) face: facing-brick foyer wall with wall light, gates, low jali wall, terrace planters, brick box with window and jali on Bed-01.
 14. **Roof** from sheets A.03 and A.12: stair head and corridor under Slab-1 (10'-6"), east terrace under Slab-2 (13'-6") with round cut-outs, perforated north wall. The two roof bedrooms (Bed-05, Bed-06) were then removed at the owner's request; that part is open roof with parapets.
-15. **Boundary wall** from the ground floor plan: 7 ft walls on the north side and past the entrance on the south, the house wall on the west, and on the street side a low wall with a jali band before the formal living planter, the car and pedestrian gates, and pillars.
+15. **Boundary wall** from the ground floor plan: 7 ft walls on the north, back (west) and south sides, and on the street side a low wall with a jali band before the formal living planter, the car and pedestrian gates, and pillars.
 
 ## Decisions made by the owner
 

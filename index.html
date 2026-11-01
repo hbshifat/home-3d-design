@@ -1019,7 +1019,8 @@ exterior(() => {
   const G0 = -5.35, BH = 7.0;                                          // road level, wall height
   const bwall = a => slab(a, G0, G0 + BH);
   bwall([95, 299, 1395, 309]);                                         // north boundary
-  bwall([95, 299, 103, 370]);                                          // west, up to the house corner
+  bwall([87, 299, 95, 1186]);                                          // back (west) boundary, full length
+  bwall([87, 1178, 1133, 1186]);                                       // south boundary along the house
   slab([1385, 309, 1395, 770], G0, G0 + 3.8);                          // street side before the planter
   jaliAt([1385, 309, 1395, 770], G0 + 3.8, 2.2);                       //   with a jali band on top
   barGate([1386, 770, 1394, 940], G0, 6.5);                            // car gate to the parking
