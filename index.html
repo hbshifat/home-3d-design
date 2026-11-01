@@ -639,21 +639,28 @@ function stair(a, rise = H_FULL + 0.3) {
   const r = R(...a), n1 = 3, n2 = 12, n3 = 4, riser = rise / (n1 + n2 + n3 + 3);   // treads + 2 landings + arrival
   const wW = r.w * 0.28, wE = r.w * 0.2;      // west and east column widths
   const zL = r.z0 + r.d * 0.55;               // north edge of the south band (landings + flight 2)
-  const solid = (w, top, d, x, z) => box(w, Math.min(top, 1.0), d, x, Math.max(0, top - 1.0), z, M(C.teak));
+  // cast concrete steps and landings, each step with a warm LED strip under its nosing
+  const conc = M(0xB3B0A8, { r: 0.85 }), led = new THREE.MeshBasicMaterial({ color: 0xFFC27A });
+  const solid = (w, top, d, x, z) => box(w, Math.min(top, 1.0), d, x, Math.max(0, top - 1.0), z, conc);
+  const strip = (alongX, len, x, y, z) => box(alongX ? len - 0.4 : 0.05, 0.05, alongX ? 0.05 : len - 0.4, x, y - 0.14, z, led, false);
+  const glow = (x, y, z) => { const l = new THREE.PointLight(0xFFB86B, 6, 7, 2); l.position.set(x, y, z); G.add(l); };
 
   // flight 1: west column, z0 → zL
   const t1 = (zL - r.z0) / n1;
-  for (let i = 0; i < n1; i++) solid(wW, (i + 1) * riser, t1, r.x0 + wW / 2, r.z0 + (i + .5) * t1);
+  for (let i = 0; i < n1; i++) { solid(wW, (i + 1) * riser, t1, r.x0 + wW / 2, r.z0 + (i + .5) * t1); strip(true, wW, r.x0 + wW / 2, (i + 1) * riser, r.z0 + i * t1 - 0.03); }
+  glow(r.x0 + wW / 2, riser * 2, r.z0 - 0.6);
   const y1 = (n1 + 1) * riser;                // landing 1
-  box(wW, Math.min(y1, 1.0), r.z1 - zL, r.x0 + wW / 2, Math.max(0, y1 - 1.0), (zL + r.z1) / 2, M(C.oak));
+  box(wW, Math.min(y1, 1.0), r.z1 - zL, r.x0 + wW / 2, Math.max(0, y1 - 1.0), (zL + r.z1) / 2, conc);
   // flight 2: south band, west → east
   const x2a = r.x0 + wW, x2b = r.x1 - wE, t2 = (x2b - x2a) / n2;
-  for (let i = 0; i < n2; i++) solid(t2, y1 + (i + 1) * riser, r.z1 - zL, x2a + (i + .5) * t2, (zL + r.z1) / 2);
+  for (let i = 0; i < n2; i++) { solid(t2, y1 + (i + 1) * riser, r.z1 - zL, x2a + (i + .5) * t2, (zL + r.z1) / 2); strip(false, r.z1 - zL, x2a + i * t2 - 0.03, y1 + (i + 1) * riser, (zL + r.z1) / 2); }
+  for (const f of [0.25, 0.75]) glow(x2a + (x2b - x2a) * f, y1 + n2 * f * riser + 0.6, zL - 0.5);
   const y2 = y1 + (n2 + 1) * riser;           // landing 2
-  box(wE, 1.0, r.z1 - zL, r.x1 - wE / 2, y2 - 1.0, (zL + r.z1) / 2, M(C.oak));
+  box(wE, 1.0, r.z1 - zL, r.x1 - wE / 2, y2 - 1.0, (zL + r.z1) / 2, conc);
   // flight 3: east column, zL → z0
   const t3 = (zL - r.z0) / n3;
-  for (let i = 0; i < n3; i++) solid(wE, y2 + (i + 1) * riser, t3, r.x1 - wE / 2, zL - (i + .5) * t3);
+  for (let i = 0; i < n3; i++) { solid(wE, y2 + (i + 1) * riser, t3, r.x1 - wE / 2, zL - (i + .5) * t3); strip(true, wE, r.x1 - wE / 2, y2 + (i + 1) * riser, zL - i * t3 + 0.03); }
+  glow(r.x1 - wE / 2, y2 + riser * 2, zL + 0.6);
 
   // railing as in the video: flat honey-oak handrail on slim dark steel balusters, square oak newel posts
   const oak = M(C.oak, { r: 0.45 }), steel = M(0x2B2B2B, { m: 0.6, r: 0.4 });
