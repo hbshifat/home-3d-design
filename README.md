@@ -4,6 +4,8 @@
 
 Live version: https://claude.ai/artifact/GyzM9PcdHyhV9YPPUp637v
 
+GitHub Pages: https://hbshifat.github.io/home-3d-design/ (served from `main`, root folder)
+
 ## What's here
 
 | Path | What it is |
