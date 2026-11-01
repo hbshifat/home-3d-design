@@ -1,0 +1,1298 @@
+<title>Shifat Residence Interior</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@500;700;800&family=Red+Hat+Text:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one-screen viewer — 3D stage fills the left, a drawing-sheet style panel on the right (stacks below on phones) */
+:root {
+  --bg: #F3F1EC;
+  --panel: #FBFAF7;
+  --fg: #26241F;
+  --muted: #6E685D;
+  --line: #DDD7CC;
+  --accent: #965D34;
+  --stage: #E9E5DD;
+  --chip: #EFEBE3;
+  --display: "Red Hat Display", "Avenir Next", "Segoe UI", sans-serif;
+  --body: "Red Hat Text", "Avenir Next", "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #191816; --panel: #211F1C; --fg: #EDE8DF; --muted: #A39B8D; --line: #36322C;
+  --accent: #C98A5C; --stage: #24221F; --chip: #2B2824; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #191816; --panel: #211F1C; --fg: #EDE8DF; --muted: #A39B8D; --line: #36322C;
+  --accent: #C98A5C; --stage: #24221F; --chip: #2B2824; color-scheme: dark }
+
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--fg); font-family: var(--body); overflow: hidden; }
+.app { display: grid; grid-template-columns: minmax(0, 1fr) 340px; height: 100%; }
+.stage { position: relative; min-width: 0; background: var(--stage); }
+#view { position: absolute; inset: 0; }
+#view canvas { display: block; outline: none; }
+.labels { position: absolute; inset: 0; pointer-events: none; }
+.rlabel { font-family: var(--display); font-weight: 700; font-size: 11px; letter-spacing: .06em; text-transform: uppercase;
+  color: #2A2620; background: rgba(251,250,247,.86); border: 1px solid rgba(0,0,0,.08); padding: 3px 7px 4px; border-radius: 3px;
+  white-space: nowrap; text-align: center; line-height: 1.2; }
+.rlabel span { display: block; font-family: var(--mono); font-weight: 400; font-size: 10px; letter-spacing: 0; text-transform: none; color: #6E685D; }
+.hud { position: absolute; top: max(14px, env(safe-area-inset-top, 0px)); left: max(16px, env(safe-area-inset-left, 0px));
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.seg { display: inline-flex; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 3px; gap: 2px; }
+.seg button { font: 500 12.5px/1 var(--body); color: var(--muted); background: none; border: 0; padding: 8px 11px; border-radius: 4px; cursor: pointer; }
+.seg.zoom { align-items: center; }
+.seg.zoom button { min-width: 32px; }
+.seg input[type="range"] { width: 96px; margin: 0 4px; accent-color: var(--accent); }
+.seg button[aria-pressed="true"] { background: var(--fg); color: var(--bg); }
+.seg button:focus-visible, .room:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.hint { position: absolute; bottom: max(12px, env(safe-area-inset-bottom, 0px)); left: max(16px, env(safe-area-inset-left, 0px));
+  font: 12px var(--body); color: var(--muted); }
+
+aside { background: var(--panel); border-left: 1px solid var(--line); overflow-y: auto; min-width: 0;
+  padding-block: 22px 28px; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 24px; }
+.eyebrow { font: 500 10.5px var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+h1 { font: 800 26px/1.05 var(--display); margin: 6px 0 4px; text-wrap: balance; letter-spacing: -.01em; }
+.sub { font-size: 13px; color: var(--muted); line-height: 1.5; margin: 0; }
+h2 { font: 700 12px var(--display); letter-spacing: .1em; text-transform: uppercase; margin: 0 0 10px; }
+.rule { display: grid; gap: 10px; }
+.band { display: grid; grid-template-columns: 44px minmax(0,1fr); gap: 10px; align-items: start; }
+.pct { font: 800 20px/1 var(--display); color: var(--fg); font-variant-numeric: tabular-nums; }
+.band p { margin: 2px 0 6px; font-size: 12.5px; color: var(--muted); line-height: 1.4; }
+.sw { display: flex; flex-wrap: wrap; gap: 6px; }
+.sw i { display: inline-flex; align-items: center; gap: 5px; font: 400 10.5px var(--mono); color: var(--muted); font-style: normal; }
+.sw i::before { content: ""; width: 14px; height: 14px; border-radius: 3px; background: var(--c); border: 1px solid rgba(0,0,0,.12); }
+.band h3 { font: 700 11px var(--display); letter-spacing: .08em; text-transform: uppercase; margin: 3px 0 2px; color: var(--muted); }
+.swatches { display: grid; gap: 2px; }
+.pick { display: grid; grid-template-columns: 30px minmax(0,1fr) auto; gap: 10px; align-items: center; padding: 4px 6px; margin: 0 -6px; border-radius: 4px; cursor: pointer; }
+.pick:hover { background: var(--chip); }
+.pick input[type="color"] { width: 30px; height: 26px; padding: 0; border: 1px solid var(--line); border-radius: 4px; background: none; cursor: pointer; }
+.pick input[type="color"]::-webkit-color-swatch-wrapper { padding: 2px; }
+.pick input[type="color"]::-webkit-color-swatch { border: 0; border-radius: 2px; }
+.pick input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.pick span { font-size: 13px; min-width: 0; }
+.pick code { font: 400 11px var(--mono); color: var(--muted); text-transform: uppercase; font-variant-numeric: tabular-nums; }
+.presets { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 10px; }
+.btn { font: 500 12px var(--body); color: var(--fg); background: var(--chip); border: 1px solid var(--line); border-radius: 5px; padding: 7px 10px; cursor: pointer; }
+.btn:hover { border-color: var(--muted); }
+.btn[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.saved { font-size: 11.5px; color: var(--muted); margin: 8px 0 0; min-height: 1em; }
+.bar { display: flex; height: 8px; border-radius: 4px; overflow: hidden; margin-top: 2px; }
+.bar b { display: block; }
+.rooms { display: grid; gap: 2px; }
+.room { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 8px; align-items: baseline; text-align: left; width: 100%;
+  background: none; border: 0; border-radius: 4px; padding: 7px 8px; cursor: pointer; color: var(--fg); font: 500 13px var(--body); }
+.room:hover { background: var(--chip); }
+.room.on { background: var(--chip); box-shadow: inset 2px 0 0 var(--accent); }
+.room small { font: 400 11px var(--mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+.note { font-size: 12px; color: var(--muted); line-height: 1.5; border-top: 1px solid var(--line); padding-top: 14px; margin: 0; }
+.legend { display: grid; grid-template-columns: auto minmax(0,1fr); gap: 3px 10px; font-size: 12px; color: var(--muted); }
+.legend code { font: 500 11px var(--mono); color: var(--fg); }
+
+@media (max-width: 760px) {
+  body { overflow: auto; }
+  .app { grid-template-columns: minmax(0,1fr); grid-template-rows: 62vh auto; height: auto; }
+  aside { border-left: 0; border-top: 1px solid var(--line); }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+
+<div class="app">
+  <div class="stage">
+    <div id="view" aria-label="3D model of the house interior"></div>
+    <div class="labels" id="labels"></div>
+    <div class="hud">
+      <div class="seg" role="group" aria-label="Floor">
+        <button id="f-g" aria-pressed="true">Ground floor</button>
+        <button id="f-1" aria-pressed="false">1st floor</button>
+        <button id="f-b" aria-pressed="false">Both</button>
+        <button id="f-x" aria-pressed="false">Exterior</button>
+      </div>
+      <div class="seg" role="group" aria-label="Walls">
+        <button id="w-low" aria-pressed="true">Cutaway</button>
+        <button id="w-full" aria-pressed="false">Full walls</button>
+      </div>
+      <div class="seg" role="group" aria-label="Labels">
+        <button id="l-tog" aria-pressed="true">Labels</button>
+      </div>
+      <div class="seg" role="group" aria-label="Render quality">
+        <button id="q-tog" aria-pressed="true">Realistic</button>
+      </div>
+      <div class="seg" role="group" aria-label="Curtains">
+        <button id="c-tog" aria-pressed="true">Curtains</button>
+      </div>
+      <div class="seg zoom" role="group" aria-label="Zoom">
+        <button id="z-out" aria-label="Zoom out">−</button>
+        <input id="z-range" type="range" min="0" max="100" step="1" aria-label="Zoom level">
+        <button id="z-in" aria-label="Zoom in">+</button>
+        <button id="z-fit" title="Show the whole floor">Fit</button>
+      </div>
+    </div>
+    <div class="hint">Drag to orbit · scroll or pinch to zoom · right-drag to pan</div>
+  </div>
+
+  <aside>
+    <header>
+      <div class="eyebrow">Residential interior · Sylhet</div>
+      <h1>Shifat Residence</h1>
+      <p class="sub">3D massing from Minimal Ltd's furniture layout (20.05.26), finished in the warm-earthy 60-30-10 palette.</p>
+    </header>
+
+    <section>
+      <h2>Color settings</h2>
+      <div class="bar" id="bar" aria-hidden="true"><b style="flex:60"></b><b style="flex:30"></b><b style="flex:10"></b></div>
+      <div class="presets" role="group" aria-label="Palette presets" id="presets"></div>
+      <div class="rule" id="palette" style="margin-top:4px"></div>
+      <div class="actions">
+        <button class="btn" id="reset">Reset to video palette</button>
+        <button class="btn" id="copy">Copy color list</button>
+      </div>
+      <p class="saved" id="saved" aria-live="polite"></p>
+    </section>
+
+    <section>
+      <h2>Rooms</h2>
+      <div class="rooms" id="rooms"></div>
+    </section>
+
+    <section>
+      <h2>Drawing codes used</h2>
+      <div class="legend">
+        <code>BD</code><span>Bed with side tables</span>
+        <code>FHC</code><span>Full height cabinet</span>
+        <code>FMD</code><span>Full mirror dressing</span>
+        <code>STC</code><span>Study with cabinet</span>
+        <code>WSS</code><span>Window side seater</span>
+        <code>FTW</code><span>Feature wall</span>
+        <code>FDW</code><span>Full height dinner wagon</span>
+        <code>TVC</code><span>TV cabinet</span>
+        <code>PM</code><span>Pelmet with curtains</span>
+      </div>
+    </section>
+
+    <p class="note">Positions are traced from the PDF (marked "Scale: N/A"), so sizes are close but not survey-exact. Use this to judge colors and layout, and confirm final dimensions with your architect.</p>
+  </aside>
+</div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { CSS2DRenderer, CSS2DObject } from "three/addons/renderers/CSS2DRenderer.js";
+import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+import { GTAOPass } from "three/addons/postprocessing/GTAOPass.js";
+import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
+import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+
+// ---------- palette (60-30-10) ----------
+const C = {
+  wall: 0xE6E1D6, linen: 0xD3C4AE, tile: 0xCFC8BA, wetTile: 0xB9B2A5, curtain: 0xDCCDB5, bedding: 0xEFE9DE,
+  oak: 0xB79C7A, teak: 0x917658, walnut: 0x67492C, espresso: 0x4E2D19,
+  brick: 0x965D34, sage: 0x8A9384, charcoal: 0x363A2F, black: 0x1B1A12, stone: 0x2E2C28,
+  rug: 0xC2A886, grass: 0x7D8B5E, leaf: 0x5E6E45, paving: 0x9D978C, white: 0xF2F0EB, glass: 0xA9BDB7
+};
+const DEFAULT = { ...C };
+
+// Editable colors, grouped by the 60-30-10 rule.
+const SETTINGS = [
+  { pct: 60, title: "Base: walls, floors, fabric", keys: [
+    ["wall", "Walls"], ["tile", "Floor tile (32\" × 32\")"], ["curtain", "Curtains"], ["linen", "Headboards & seat cushions"],
+    ["bedding", "Bedding"], ["wetTile", "Bathroom tile"] ] },
+  { pct: 30, title: "Wood", keys: [
+    ["oak", "Light wood"], ["teak", "Wardrobes, stair, chairs"], ["walnut", "Bed frames & TV units"] ] },
+  { pct: 10, title: "Accents", keys: [
+    ["brick", "Brick jali & feature walls"], ["sage", "Sofas"], ["charcoal", "Fridge, planters, metal"],
+    ["stone", "Counter & table tops"], ["rug", "Rugs"] ] }
+];
+const PRESETS = {
+  "Warm earthy": {},
+  "Scandi light": { wall: 0xF2F0EB, tile: 0xE3DED4, curtain: 0xEDE8DF, linen: 0xE0D8CB, bedding: 0xF6F3EE, wetTile: 0xD6D3CC,
+    oak: 0xD4BC98, teak: 0xC4A57E, walnut: 0x9C7B57, brick: 0x7E8C7A, sage: 0xA9B3A6, charcoal: 0x3F4245, stone: 0xBDB8AF, rug: 0xDCCFBD },
+  "Moody dark": { wall: 0x8C8378, tile: 0x6E685F, curtain: 0x9C8C78, linen: 0x7A6E60, bedding: 0xCFC4B2, wetTile: 0x5D5852,
+    oak: 0x8A6A4A, teak: 0x5E4330, walnut: 0x3B2A1C, brick: 0xA7643A, sage: 0x56604F, charcoal: 0x1E1E1C, stone: 0x161514, rug: 0x7B6450 },
+  "Coastal": { wall: 0xF1EEE7, tile: 0xDCD6CA, curtain: 0xE6E2D8, linen: 0xC9D3D2, bedding: 0xF4F2EC, wetTile: 0xBFCBCB,
+    oak: 0xCDB491, teak: 0xA88B68, walnut: 0x7C6247, brick: 0x5F7F8C, sage: 0x8FA6A6, charcoal: 0x2F3A40, stone: 0xE2DED6, rug: 0xB9AE9A }
+};
+const STORE = "shifat-palette-v1";
+// The model is built with the default colors (all distinct, so each material maps back to
+// one palette key); saved or preset colors are applied to the materials afterwards.
+let current = { ...DEFAULT };
+try { Object.assign(current, JSON.parse(localStorage.getItem(STORE) || "{}")); } catch {}
+
+const hexKey = Object.fromEntries(Object.entries(C).map(([k, v]) => [v, k]));
+const byKey = {};   // palette key -> materials using it
+const mats = {};
+// Procedural surface textures in near-white greys, so the palette color still sets the hue.
+// Box UVs are in feet (see box()), so repeat = 1 / (feet covered by one texture tile).
+function canvasTex(size, draw, feetW, feetH = feetW) {
+  const c = document.createElement("canvas"); c.width = c.height = size;
+  draw(c.getContext("2d"), size);
+  const t = new THREE.CanvasTexture(c);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
+  t.repeat.set(1 / feetW, 1 / feetH);
+  return t;
+}
+let seed = 7;
+const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+const woodTex = canvasTex(512, (g, n) => {
+  g.fillStyle = "#e9e9e9"; g.fillRect(0, 0, n, n);
+  for (let i = 0; i < 140; i++) {                 // long wavy grain lines running up the board
+    const x0 = rnd() * n, w = 0.6 + rnd() * 2.4, l = 150 + rnd() * 90 | 0;
+    g.strokeStyle = `rgba(${l},${l},${l},${0.25 + rnd() * 0.35})`; g.lineWidth = w;
+    g.beginPath();
+    for (let y = -8; y <= n + 8; y += 16) { const x = x0 + Math.sin(y / 70 + x0) * 6; y < 0 ? g.moveTo(x, y) : g.lineTo(x, y); }
+    g.stroke();
+  }
+  for (let i = 0; i < 6; i++) { const x = rnd() * n; g.fillStyle = "rgba(255,255,255,0.18)"; g.fillRect(x, 0, 8 + rnd() * 26, n); }
+}, 2, 4);
+const fabricTex = canvasTex(256, (g, n) => {
+  g.fillStyle = "#f0f0f0"; g.fillRect(0, 0, n, n);
+  for (let y = 0; y < n; y += 2) { g.fillStyle = `rgba(0,0,0,${0.03 + rnd() * 0.05})`; g.fillRect(0, y, n, 1); }
+  for (let x = 0; x < n; x += 2) { g.fillStyle = `rgba(0,0,0,${0.02 + rnd() * 0.04})`; g.fillRect(x, 0, 1, n); }
+}, 1.2);
+const plasterTex = canvasTex(256, (g, n) => {
+  g.fillStyle = "#f6f6f6"; g.fillRect(0, 0, n, n);
+  for (let i = 0; i < 900; i++) { const v = 225 + rnd() * 30 | 0; g.fillStyle = `rgba(${v},${v},${v},0.25)`; g.beginPath(); g.arc(rnd() * n, rnd() * n, 2 + rnd() * 9, 0, 7); g.fill(); }
+}, 6);
+const SURFACE = {
+  [C.oak]: [woodTex, 0.6], [C.teak]: [woodTex, 0.6], [C.walnut]: [woodTex, 0.55], [C.espresso]: [woodTex, 0.55], [0xC07A3E]: [woodTex, 0.5],
+  [C.linen]: [fabricTex, 0.95], [C.curtain]: [fabricTex, 1], [C.bedding]: [fabricTex, 0.95], [C.sage]: [fabricTex, 0.95], [C.rug]: [fabricTex, 1],
+  [C.wall]: [plasterTex, 0.92]
+};
+const M = (hex, o = {}) => {
+  const k = hex + JSON.stringify(o);
+  if (mats[k]) return mats[k];
+  const [map, rough] = SURFACE[hex] || [null, null];
+  const m = mats[k] = new THREE.MeshStandardMaterial({ color: hex, map, roughness: o.r ?? rough ?? 0.85, metalness: o.m ?? 0, transparent: !!o.t, opacity: o.t ?? 1 });
+  const key = hexKey[hex];
+  if (key) (byKey[key] ||= []).push(m);
+  return m;
+};
+
+// ---------- plan geometry ----------
+// Each floor is traced in PDF pixels; S = pixels per foot, (ox, oy) = plan origin.
+const FLOORS = {
+  g: { S: 21.7, ox: 95, oy: 355, y: 0 },
+  f: { S: 27.6, ox: 75, oy: 195, y: 0 }
+};
+const H_FULL = 9.5, H_LOW = 3.2, T = 0.35;
+
+const view = document.getElementById("view");
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 0.95;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+view.appendChild(renderer.domElement);
+const labelRenderer = new CSS2DRenderer({ element: document.getElementById("labels") });
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(38, 1, 0.5, 600);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.maxPolarAngle = Math.PI * 0.47;
+controls.minDistance = 8;
+controls.maxDistance = 180;
+
+// Image-based light from a neutral studio room gives soft fill and real reflections on glass,
+// tile and metal; the sun adds warm late-afternoon light with crisp shadows.
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(renderer), 0.04).texture;
+scene.add(new THREE.HemisphereLight(0xFFF4E2, 0x8A7F6E, 0.25));
+const sun = new THREE.DirectionalLight(0xFFE2BC, 2.6);
+sun.position.set(-30, 70, 40);
+sun.castShadow = true;
+sun.shadow.mapSize.set(4096, 4096);
+Object.assign(sun.shadow.camera, { left: -60, right: 60, top: 60, bottom: -60, near: 1, far: 220 });
+sun.shadow.bias = -0.0003; sun.shadow.normalBias = 0.03;
+scene.add(sun, sun.target);
+
+function themeStage() {
+  const v = getComputedStyle(document.documentElement).getPropertyValue("--stage").trim() || "#E9E5DD";
+  scene.background = new THREE.Color(v);
+}
+themeStage();
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", themeStage);
+new MutationObserver(themeStage).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+
+// ---------- builders ----------
+const groups = { g: new THREE.Group(), f: new THREE.Group() };
+scene.add(groups.g, groups.f);
+const walls = [];   // { mesh, low } — rescaled by the wall toggle
+const labels = { g: [], f: [] };
+const roomIndex = [];
+let F, G;           // current floor + group while building
+
+const ft = (px, py) => [(px - F.ox) / F.S, (py - F.oy) / F.S];
+function R(x1, y1, x2, y2) {
+  const [a, b] = ft(x1, y1), [c, d] = ft(x2, y2);
+  return { x0: a, z0: b, x1: c, z1: d, w: c - a, d: d - b, cx: (a + c) / 2, cz: (b + d) / 2 };
+}
+function box(w, h, d, x, y, z, mat, shadow = true) {
+  const geo = new THREE.BoxGeometry(Math.max(w, .05), Math.max(h, .05), Math.max(d, .05));
+  const uv = geo.attributes.uv, dims = [[d, h], [d, h], [w, d], [w, d], [w, h], [w, h]];   // faces +x −x +y −y +z −z
+  for (let i = 0; i < 24; i++) { const f = dims[i >> 2]; uv.setXY(i, uv.getX(i) * f[0], uv.getY(i) * f[1]); }
+  const m = new THREE.Mesh(geo, mat);
+  m.position.set(x, y + h / 2, z);
+  m.castShadow = shadow; m.receiveShadow = true;
+  G.add(m); return m;
+}
+const rbox = (r, h, mat, y = 0, inset = 0) => box(r.w - inset * 2, h, r.d - inset * 2, r.cx, y, r.cz, mat);
+function cyl(rad, h, x, y, z, mat, seg = 28) {
+  const m = new THREE.Mesh(new THREE.CylinderGeometry(rad, rad, h, seg), mat);
+  m.position.set(x, y + h / 2, z); m.castShadow = true; m.receiveShadow = true; G.add(m); return m;
+}
+
+function wall(x0, z0, x1, z1, mat = M(C.wall)) {
+  const w = Math.abs(x1 - x0) || T, d = Math.abs(z1 - z0) || T;
+  return tall(box(w, H_FULL, d, (x0 + x1) / 2, 0, (z0 + z1) / 2, mat), 0, H_FULL);
+}
+// Anything taller than the cutaway height shrinks with the wall toggle.
+function tall(m, y0, h) { m.userData.cut = { y0, h }; walls.push(m); return m; }
+
+// Floor tiles: a grout-line texture repeated at the tile size from the working drawing (inches).
+const gridTex = (() => {
+  const c = document.createElement("canvas"); c.width = c.height = 512;
+  const g = c.getContext("2d");
+  for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) {
+    const v = 238 + (rnd() * 17 | 0); g.fillStyle = `rgb(${v},${v},${v - 2})`; g.fillRect(i * 128, j * 128, 128, 128);
+    for (let k = 0; k < 40; k++) { g.fillStyle = `rgba(255,255,255,${rnd() * 0.25})`; g.fillRect(i * 128 + rnd() * 128, j * 128 + rnd() * 128, 2 + rnd() * 10, 1 + rnd() * 3); }
+  }
+  g.fillStyle = "#b3ada3";
+  for (let i = 0; i < 4; i++) { g.fillRect(0, i * 128, 512, 3); g.fillRect(i * 128, 0, 3, 512); }
+  const t = new THREE.CanvasTexture(c);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
+  return t;
+})();
+function tileMat(hex, w, d, tw, td = tw) {
+  const map = gridTex.clone(); map.needsUpdate = true;
+  map.repeat.set(12 / tw / 4, 12 / td / 4);
+  const m = new THREE.MeshStandardMaterial({ color: hex, map, roughness: 0.35 });
+  const key = hexKey[hex]; if (key) (byKey[key] ||= []).push(m);
+  return m;
+}
+
+function room(def) {
+  const parts = [def.r, ...(def.extra || [])].map(a => R(...a));
+  const floorHex = { tile: C.tile, wood: C.oak, wet: C.wetTile, grass: C.grass, paving: C.paving, stone: 0xB4ADA0 }[def.floor || "tile"];
+  const floorMat = M(floorHex, { r: def.floor === "tile" ? 0.55 : 0.85 });
+  parts.forEach(p => {
+    const mat = def.tile ? tileMat(floorHex, p.w, p.d, ...def.tile) : floorMat;
+    const s = box(p.w, 0.3, p.d, p.cx, (def.level || 0) - 0.3, p.cz, mat, false); s.receiveShadow = true;
+  });
+  const r = parts[0];
+  const sides = def.walls ?? "nsew";
+  // Each wall also reaches GAP past the room edge (outwards and at both ends), so the walls of
+  // neighbouring rooms traced a few pixels apart merge into one wall with closed corners.
+  const GAP = 0.3, slab = (x0, z0, x1, z1) => tall(box(x1 - x0, H_FULL, z1 - z0, (x0 + x1) / 2, 0, (z0 + z1) / 2, M(C.wall)), 0, H_FULL);
+  if (sides.includes("n")) slab(r.x0 - GAP, r.z0 - GAP, r.x1 + GAP, r.z0 + T);
+  if (sides.includes("s")) slab(r.x0 - GAP, r.z1 - T, r.x1 + GAP, r.z1 + GAP);
+  if (sides.includes("w")) slab(r.x0 - GAP, r.z0 - GAP, r.x0 + T, r.z1 + GAP);
+  if (sides.includes("e")) slab(r.x1 - T, r.z0 - GAP, r.x1 + GAP, r.z1 + GAP);
+  if (def.name) {
+    const el = document.createElement("div");
+    el.className = "rlabel";
+    el.innerHTML = def.name + (def.dim ? `<span>${def.dim}</span>` : "");
+    const lab = new CSS2DObject(el);
+    const lp = def.labelAt ? R(...def.labelAt, def.labelAt[0] + 1, def.labelAt[1] + 1) : r;
+    lab.position.set(lp.cx, 0.6 + (def.level || 0), lp.cz);
+    G.add(lab);
+    labels[F.key].push(lab);
+    roomIndex.push({ name: def.name, dim: def.dim, floor: F.key, cx: r.cx, cz: r.cz, size: Math.max(r.w, r.d) });
+  }
+}
+
+// --- furniture (all rects in plan pixels) ---
+function bed(a, head) {
+  const r = R(...a);
+  rbox(r, 1.1, M(C.walnut));
+  rbox(r, 0.75, M(C.bedding), 1.1, 0.25);
+  const hb = 0.35, along = head === "n" || head === "s";
+  const hx = head === "e" ? r.x1 - hb / 2 : head === "w" ? r.x0 + hb / 2 : r.cx;
+  const hz = head === "s" ? r.z1 - hb / 2 : head === "n" ? r.z0 + hb / 2 : r.cz;
+  box(along ? r.w + 0.6 : hb, 4.2, along ? hb : r.d + 0.6, hx, 0, hz, M(C.linen));
+  // pillows
+  const off = 1.0;
+  for (const s of [-1, 1]) {
+    const px = along ? r.cx + s * r.w / 4 : hx + (head === "e" ? -off : off);
+    const pz = along ? hz + (head === "s" ? -off : off) : r.cz + s * r.d / 4;
+    box(along ? r.w / 2 - 0.4 : 0.9, 0.45, along ? 0.9 : r.d / 2 - 0.4, px, 1.85, pz, M(C.white));
+  }
+  // terracotta throw at the foot (accent)
+  const fx = head === "e" ? r.x0 + 1.1 : head === "w" ? r.x1 - 1.1 : r.cx;
+  const fz = head === "s" ? r.z0 + 1.1 : head === "n" ? r.z1 - 1.1 : r.cz;
+  box(along ? r.w - 0.2 : 1.6, 0.12, along ? 1.6 : r.d - 0.2, fx, 1.85, fz, M(C.brick));
+  // side tables
+  for (const s of [-1, 1]) {
+    const tx = along ? (s < 0 ? r.x0 - 1.1 : r.x1 + 1.1) : hx + (head === "e" ? -0.9 : 0.9);
+    const tz = along ? hz + (head === "s" ? -0.9 : 0.9) : (s < 0 ? r.z0 - 1.1 : r.z1 + 1.1);
+    box(1.5, 1.8, 1.4, tx, 0, tz, M(C.teak));
+    cyl(0.25, 0.9, tx, 1.8, tz, M(C.linen, { r: 0.4 }), 16);
+  }
+}
+function sofa(a, back, mat = M(C.sage)) {
+  const r = R(...a);
+  rbox(r, 1.4, mat);
+  const t = 0.7;
+  if (back === "n") box(r.w, 2.7, t, r.cx, 0, r.z0 + t / 2, mat);
+  if (back === "s") box(r.w, 2.7, t, r.cx, 0, r.z1 - t / 2, mat);
+  if (back === "e") box(t, 2.7, r.d, r.x1 - t / 2, 0, r.cz, mat);
+  if (back === "w") box(t, 2.7, r.d, r.x0 + t / 2, 0, r.cz, mat);
+  if (back === "n" || back === "s") { box(0.5, 2.0, r.d, r.x0 + .25, 0, r.cz, mat); box(0.5, 2.0, r.d, r.x1 - .25, 0, r.cz, mat); }
+  else { box(r.w, 2.0, 0.5, r.cx, 0, r.z0 + .25, mat); box(r.w, 2.0, 0.5, r.cx, 0, r.z1 - .25, mat); }
+  // cushions in linen
+  const n = Math.max(2, Math.round(Math.max(r.w, r.d) / 2.6));
+  for (let i = 0; i < n; i++) {
+    const f = (i + 0.5) / n;
+    if (back === "n" || back === "s") box(r.w / n - 0.4, 1.0, 0.35, r.x0 + f * r.w, 1.4, back === "n" ? r.z0 + 0.95 : r.z1 - 0.95, M(C.linen));
+    else box(0.35, 1.0, r.d / n - 0.4, back === "e" ? r.x1 - 0.95 : r.x0 + 0.95, 1.4, r.z0 + f * r.d, M(C.linen));
+  }
+}
+function armchair(a, faceTo) {
+  const r = R(...a), rad = Math.min(r.w, r.d) / 2;
+  cyl(rad, 1.4, r.cx, 0, r.cz, M(C.linen));
+  const back = new THREE.Mesh(new THREE.CylinderGeometry(rad, rad, 2.7, 24, 1, true, 0, Math.PI), M(C.brick, { r: 0.9 }));
+  back.material.side = THREE.DoubleSide;
+  const [tx, tz] = ft(...faceTo);
+  back.rotation.y = Math.atan2(r.cx - tx, r.cz - tz) - Math.PI / 2;
+  back.position.set(r.cx, 1.35, r.cz); back.castShadow = true; G.add(back);
+}
+function roundTable(px, py, prad, h = 1.6, top = C.stone) {
+  const [x, z] = ft(px, py), rad = prad / F.S;
+  cyl(rad, 0.12, x, h - 0.12, z, M(top, { r: 0.35 }), 32);
+  cyl(0.18, h - 0.12, x, 0, z, M(C.black));
+}
+function table(a, h, top) {
+  const r = R(...a);
+  rbox(r, 0.15, M(top, { r: 0.3 }), h - 0.15);
+  for (const [x, z] of [[r.x0 + .4, r.z0 + .4], [r.x1 - .4, r.z0 + .4], [r.x0 + .4, r.z1 - .4], [r.x1 - .4, r.z1 - .4]])
+    box(0.2, h - 0.15, 0.2, x, 0, z, M(C.black));
+}
+function chair(px, py, faceTo) {
+  const [x, z] = ft(px, py);
+  box(1.4, 1.5, 1.4, x, 0, z, M(C.linen));
+  const [tx, tz] = ft(...faceTo);
+  const ang = Math.atan2(x - tx, z - tz);
+  const b = box(1.4, 1.6, 0.25, x + Math.sin(ang) * 0.6, 1.5, z + Math.cos(ang) * 0.6, M(C.teak));
+  b.rotation.y = ang;
+}
+function stool(px, py) { const [x, z] = ft(px, py); cyl(0.55, 0.2, x, 2.3, z, M(C.linen)); cyl(0.08, 2.3, x, 0, z, M(C.black), 8); }
+function wardrobe(a, h = 7.8) {
+  const r = R(...a);
+  rbox(r, h, M(C.teak, { r: 0.7 }));
+  // groove lines (GPV) on the long face
+  const n = Math.max(2, Math.round(Math.max(r.w, r.d) / 1.8));
+  for (let i = 1; i < n; i++) {
+    const f = i / n;
+    if (r.w > r.d) box(0.05, h - 0.4, r.d + 0.04, r.x0 + f * r.w, 0.2, r.cz, M(C.walnut));
+    else box(r.w + 0.04, h - 0.4, 0.05, r.cx, 0.2, r.z0 + f * r.d, M(C.walnut));
+  }
+}
+function counter(a, h = 2.9, body = C.teak, top = C.stone) { const r = R(...a); rbox(r, h - 0.12, M(body)); rbox(r, 0.12, M(top, { r: 0.3 }), h - 0.12); }
+function upper(a, y0 = 4.7, y1 = 7.3) { const r = R(...a); rbox(r, y1 - y0, M(C.oak), y0); }
+const rug = (a, col = C.rug) => rbox(R(...a), 0.05, M(col, { r: 1 }), 0.001);
+const cushionSeat = (a) => { const r = R(...a); rbox(r, 1.3, M(C.oak)); rbox(r, 0.35, M(C.linen), 1.3, 0.1); };
+// Pleated curtain hanging from a pelmet. open = true draws the two drapes back to the ends
+// and hangs a see-through sheer across the whole opening.
+function curtain(a, open = false) {
+  const r = R(...a), alongX = r.w > r.d, len = alongX ? r.w : r.d, h = 8.6, y0 = 0.3;
+  const drape = (from, to, mat, inset = 0) => {
+    const n = Math.max(2, Math.round((to - from) / 0.45)), step = (to - from) / n;
+    for (let i = 0; i < n; i++) {
+      const u = from + (i + 0.5) * step, off = (i % 2 ? 0.07 : -0.07) + inset;
+      const fold = box(alongX ? step * 1.15 : 0.05, h, alongX ? 0.05 : step * 1.15,
+        alongX ? r.x0 + u : r.cx + off, y0, alongX ? r.cz + off : r.z0 + u, mat);
+      fold.rotation.y = i % 2 ? 0.45 : -0.45;
+      tall(fold, y0, h).userData.curtain = true;
+    }
+  };
+  const heavy = M(C.curtain, { r: 1 });
+  if (!open) drape(0, len, heavy);
+  else {
+    drape(0, len * 0.18, heavy); drape(len * 0.82, len, heavy);
+    drape(0, len, M(C.bedding, { r: 1, t: 0.45 }), 0.22);      // sheer
+  }
+  Object.assign(tall(rbox(r, 0.6, M(C.oak), H_FULL - 0.9), H_FULL - 0.9, 0.6).userData, { hideLow: true, curtain: true });
+}
+function panelWall(a, col = C.brick, h = 8.5) {
+  const r = R(...a), slats = Math.round(Math.max(r.w, r.d) / 0.6);
+  for (let i = 0; i < slats; i++) {
+    const f = (i + 0.5) / slats;
+    if (r.w > r.d) tall(box(r.w / slats * 0.6, h, r.d, r.x0 + f * r.w, 0, r.cz, M(col)), 0, h);
+    else tall(box(r.w, h, r.d / slats * 0.6, r.cx, 0, r.z0 + f * r.d, M(col)), 0, h);
+  }
+}
+// Glass along the long side of a plan rect, with black frames at the ends and about every 4 ft.
+// Safety grill (12 mm square MS bars at about 4" centres, sheet A.26) over a glass opening, as in the
+// reference photo: horizontal bars in the two outer thirds, vertical bars in the middle third.
+// Openings 3 ft or narrower get vertical bars only.
+function grill(r, alongX, y0, h, t) {
+  const bar = M(C.black, { m: 0.5, r: 0.4 }), len = alongX ? r.w : r.d, s = 0.05, gap = 0.36;
+  const at = (u, y, bw, bh) => tall(box(alongX ? bw : t, bh, alongX ? t : bw, alongX ? r.x0 + u : r.cx, y, alongX ? r.cz : r.z0 + u, bar, false), y, bh);
+  const [a, b, c, d] = len > 3 ? [0, len / 3, 2 * len / 3, len] : [0, 0, len, len];
+  for (const [p, q] of [[a, b], [c, d]]) if (q > p) for (let y = y0 + gap; y < y0 + h - 0.1; y += gap) at((p + q) / 2, y, q - p - 0.1, s);
+  for (let u = b + gap / 2; u < c; u += gap) at(u, y0, s, h);
+  if (len > 3) for (const u of [b, c]) at(u, y0, 0.1, h);   // flat dividers between the sections
+}
+function glassPanel(a, h = H_FULL, y0 = 0) {   // glass uses M(C.glass, { r: 0.1, t: 0.3 }), reflective through the environment light
+  const r = R(...a), alongX = r.w > r.d, len = alongX ? r.w : r.d;
+  tall(box(alongX ? len : 0.08, h, alongX ? 0.08 : len, r.cx, y0, r.cz, M(C.glass, { r: 0.1, t: 0.3 }), false), y0, h);
+  const n = Math.max(1, Math.round(len / 4));
+  for (let i = 0; i <= n; i++) {
+    const f = i / n;
+    tall(box(0.12, h, 0.12, alongX ? r.x0 + f * len : r.cx, y0, alongX ? r.cz : r.z0 + f * len, M(C.black)), y0, h);
+  }
+  grill(r, alongX, y0, h, 0.14);
+}
+// Plain wall piece over a plan rect between two heights (around windows and door heads).
+function wallPiece(a, y0, h) {
+  const r = R(...a), alongX = r.w > r.d;
+  tall(box(alongX ? r.w : T, h, alongX ? T : r.d, r.cx, y0, r.cz, M(C.wall)), y0, h);
+}
+// Brick jali as drawn on the south elevation: square terracotta blocks, each with a solid
+// triangle and an open triangle, turned so they form a pinwheel pattern.
+const jaliTex = (() => {
+  const c = document.createElement("canvas"); c.width = c.height = 256;
+  const g = c.getContext("2d"), s = 64, b = 7;
+  g.fillStyle = "#fff";
+  for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) {
+    const x = i * s, y = j * s;
+    g.fillRect(x, y, s, b); g.fillRect(x, y + s - b, s, b); g.fillRect(x, y, b, s); g.fillRect(x + s - b, y, b, s);
+    const k = (i + 2 * j) % 4, pts = [[x, y], [x + s, y], [x + s, y + s], [x, y + s]];
+    g.beginPath(); [0, 1, 2].forEach((q, n) => { const [px, py] = pts[(k + q) % 4]; n ? g.lineTo(px, py) : g.moveTo(px, py); }); g.fill();
+    g.fillRect(x, y, s, 3);
+  }
+  const t = new THREE.CanvasTexture(c);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+})();
+function brickJali(a, h = H_FULL) {
+  const r = R(...a), alongX = r.w > r.d, len = alongX ? r.w : r.d;
+  const map = jaliTex.clone(); map.needsUpdate = true;
+  map.repeat.set(1 / 3, 1 / 3);                   // 4 blocks per 3 ft = 9" blocks
+  const m = new THREE.MeshStandardMaterial({ color: C.brick, map, alphaTest: 0.5, side: THREE.DoubleSide, roughness: 0.9 });
+  (byKey.brick ||= []).push(m);
+  tall(box(alongX ? len : 0.3, h, alongX ? 0.3 : len, r.cx, 0, r.cz, m, false), 0, h);
+}
+// Window on a solid wall: framed glass a little proud of both faces, from sill to head height.
+function windowOn(a, sill, h) {
+  const r = R(...a), alongX = r.w > r.d, len = alongX ? r.w : r.d, t = T + 0.55, f = t + 0.04;   // thick enough to show on both faces of the merged walls
+  tall(box(alongX ? len : t, h, alongX ? t : len, r.cx, sill, r.cz, M(C.glass, { r: 0.08, m: 0.4 })), sill, h);
+  for (const y of [sill, sill + h - 0.12]) tall(box(alongX ? len : f, 0.12, alongX ? f : len, r.cx, y, r.cz, M(C.black)), y, 0.12);
+  for (const e of [0, 1]) tall(box(alongX ? 0.12 : f, h, alongX ? f : 0.12, alongX ? r.x0 + e * len : r.cx, sill, alongX ? r.cz : r.z0 + e * len, M(C.black)), sill, h);
+  grill(r, alongX, sill, h, f);
+}
+// Perforated brass sheet (main door panel): a grid of round holes.
+const perfTex = (() => {
+  const c = document.createElement("canvas"); c.width = c.height = 64;
+  const g = c.getContext("2d");
+  g.fillStyle = "#fff"; g.fillRect(0, 0, 64, 64);
+  g.fillStyle = "#2a2118";
+  for (const [x, y] of [[16, 16], [48, 16], [0, 48], [32, 48], [64, 48]]) { g.beginPath(); g.arc(x, y, 7, 0, Math.PI * 2); g.fill(); }
+  const t = new THREE.CanvasTexture(c);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+})();
+// Closed door on a wall: a walnut leaf a little proud of both faces, with a black pull.
+function door(a, h = 7.0) {
+  const r = R(...a), alongX = r.w > r.d, len = alongX ? r.w : r.d, t = T + 0.55;
+  tall(box(alongX ? len : t, h, alongX ? t : len, r.cx, 0, r.cz, M(C.walnut, { r: 0.6 })), 0, h);
+  const hx = alongX ? r.x1 - 0.35 : r.cx, hz = alongX ? r.cz : r.z1 - 0.35;
+  tall(box(alongX ? 0.1 : t + 0.16, 0.9, alongX ? t + 0.16 : 0.1, hx, 3.1, hz, M(C.black, { m: 0.6, r: 0.3 })), 3.1, 0.9);
+  wallPiece(a, h, H_FULL - h);
+}
+
+function plant(px, py, s = 1) {
+  const [x, z] = ft(px, py);
+  cyl(0.55 * s, 1.2 * s, x, 0, z, M(C.charcoal));
+  const leaf = new THREE.Mesh(new THREE.IcosahedronGeometry(1.1 * s, 0), M(C.leaf));
+  leaf.position.set(x, 2.4 * s, z); leaf.scale.y = 1.4; leaf.castShadow = true; G.add(leaf);
+}
+function tv(a, along = "x") {
+  const r = R(...a);
+  rbox(r, 1.6, M(C.walnut));
+  const w = along === "x" ? Math.min(r.w * 0.6, 5.5) : 0.15, d = along === "x" ? 0.15 : Math.min(r.d * 0.6, 5.5);
+  box(w, 3.1, d, r.cx, 3.4, r.cz, M(C.black, { r: 0.3 }));
+}
+function wc(px, py) { const [x, z] = ft(px, py); box(1.3, 1.3, 2.0, x, 0, z, M(C.white, { r: 0.3 })); }
+function shower(a) { const r = R(...a); rbox(r, 0.15, M(C.wetTile)); rbox(r, 6.8, M(C.glass, { r: 0.1, t: 0.28 }), 0.15, 0.05); }
+function basin(a) { const r = R(...a); rbox(r, 2.7, M(C.walnut)); rbox(r, 0.2, M(C.white, { r: 0.3 }), 2.7, 0.15); }
+// Three-flight stair as drawn (working drawing: 3 steps, landing, 12 steps, landing, 4 steps):
+//   flight 1 starts at the west (guest bed) wall and climbs south,
+//   landing 1 in the south-west corner,
+//   flight 2 (the long one) climbs east along the south side,
+//   landing 2 in the south-east corner,
+//   flight 3 climbs north and arrives at the floor above.
+function stair(a, rise = H_FULL + 0.3) {
+  const r = R(...a), n1 = 3, n2 = 12, n3 = 4, riser = rise / (n1 + n2 + n3 + 3);   // treads + 2 landings + arrival
+  const wW = r.w * 0.28, wE = r.w * 0.2;      // west and east column widths
+  const zL = r.z0 + r.d * 0.55;               // north edge of the south band (landings + flight 2)
+  const solid = (w, top, d, x, z) => box(w, Math.min(top, 1.0), d, x, Math.max(0, top - 1.0), z, M(C.teak));
+
+  // flight 1: west column, z0 → zL
+  const t1 = (zL - r.z0) / n1;
+  for (let i = 0; i < n1; i++) solid(wW, (i + 1) * riser, t1, r.x0 + wW / 2, r.z0 + (i + .5) * t1);
+  const y1 = (n1 + 1) * riser;                // landing 1
+  box(wW, Math.min(y1, 1.0), r.z1 - zL, r.x0 + wW / 2, Math.max(0, y1 - 1.0), (zL + r.z1) / 2, M(C.oak));
+  // flight 2: south band, west → east
+  const x2a = r.x0 + wW, x2b = r.x1 - wE, t2 = (x2b - x2a) / n2;
+  for (let i = 0; i < n2; i++) solid(t2, y1 + (i + 1) * riser, r.z1 - zL, x2a + (i + .5) * t2, (zL + r.z1) / 2);
+  const y2 = y1 + (n2 + 1) * riser;           // landing 2
+  box(wE, 1.0, r.z1 - zL, r.x1 - wE / 2, y2 - 1.0, (zL + r.z1) / 2, M(C.oak));
+  // flight 3: east column, zL → z0
+  const t3 = (zL - r.z0) / n3;
+  for (let i = 0; i < n3; i++) solid(wE, y2 + (i + 1) * riser, t3, r.x1 - wE / 2, zL - (i + .5) * t3);
+
+  // handrails along the open stairwell side of each flight
+  const rail = (ax, ay, az, bx, by, bz) => {
+    const A = new THREE.Vector3(ax, ay + 3, az), B = new THREE.Vector3(bx, by + 3, bz);
+    const len = A.distanceTo(B);
+    const m = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, len, 8), M(C.black));
+    m.position.copy(A).add(B).multiplyScalar(0.5);
+    m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), B.clone().sub(A).normalize());
+    m.castShadow = true; G.add(m);
+    for (let k = 0; k <= 3; k++) {
+      const f = k / 3;
+      box(0.08, 3, 0.08, ax + (bx - ax) * f, ay + (by - ay) * f, az + (bz - az) * f, M(C.black));
+    }
+  };
+  rail(x2a, 0, r.z0, x2a, y1, zL);                 // flight 1, east edge
+  rail(x2a, y1, zL, x2b, y2, zL);                  // flight 2, north edge
+  rail(x2b, y2, zL, x2b, rise, r.z0);              // flight 3, west edge
+}
+function car(a) {
+  const r = R(...a);
+  rbox(r, 2.2, M(C.charcoal, { r: 0.4, m: 0.3 }), 0.6, 0.2);
+  box(r.w * 0.5, 1.4, r.d - 0.8, r.cx - r.w * 0.05, 2.8, r.cz, M(0x2A2E33, { r: 0.2, m: 0.4 }));
+  const [ax, bx] = [r.x0 + r.w * 0.2, r.x1 - r.w * 0.2];
+  for (const x of [ax, bx]) for (const z of [r.z0 + 0.4, r.z1 - 0.4]) {
+    const wl = new THREE.Mesh(new THREE.CylinderGeometry(1.0, 1.0, 0.6, 20), M(C.black));
+    wl.rotation.x = Math.PI / 2; wl.position.set(x, 1.0, z); G.add(wl);
+  }
+}
+function railing(a) { const r = R(...a); rbox(r, 3.4, M(C.glass, { r: 0.1, t: 0.3 })); }
+
+// ================= GROUND FLOOR =================
+F = { ...FLOORS.g, key: "g" }; G = groups.g;
+room({ name: "Storage & Laundry", dim: "6'-7\" × 10'-7\"", r: [103, 365, 245, 595], walls: "nwe", tile: [24, 24] });   // open to the kitchen balcony
+room({ name: "Kitchen Balcony", dim: "6'-7\" × 7'-10\"", r: [103, 600, 245, 825], walls: "ws", tile: [6, 36] });
+room({ name: "Kitchen", dim: "12'-8\" × 16'-5\"", r: [250, 370, 515, 720], walls: "nws", tile: [12, 24] });
+room({ name: "Dining", dim: "16'-3\" × 21'-5\"", r: [515, 370, 865, 790], walls: "n", tile: [32, 32] });   // open to formal living, no wall between
+room({ name: "Toilet", dim: "8'-0\" × 4'-5\"", r: [205, 725, 410, 825], floor: "wet", tile: [12, 24] });
+room({ name: "Guest Bed", dim: "13'-0\" × 12'-3\"", r: [205, 830, 485, 1110], tile: [32, 32] });
+room({ name: "Stair", dim: "17'-0\" × 7'-0\"", r: [490, 790, 865, 960], walls: "w", tile: [32, 32] });
+room({ name: "Courtyard", dim: "brick jali + garden", r: [490, 965, 865, 1170], walls: "ws", floor: "grass", labelAt: [677, 1110] });
+room({ name: "Formal Living", dim: "17'-9\" × 18'-0\"", r: [870, 370, 1260, 760], walls: "n", tile: [32, 32] });
+room({ name: "Foyer", dim: "5'-0\" × 21'-4\"", r: [870, 760, 980, 1170], walls: "", tile: [32, 32] });   // walls built below, with glass panels
+room({ name: "Parking", dim: "19'-3\" × 9'-9\"", r: [985, 770, 1390, 940], walls: "", floor: "paving", tile: [8, 8], level: -4.5 });
+room({ name: "Entrance", dim: "7'-0\" × 10'-0\"", r: [1027, 942, 1133, 1131], walls: "", floor: "paving", tile: [12, 36], level: -1.5 });
+room({ r: [1290, 310, 1395, 740], walls: "", floor: "grass" });
+
+// laundry
+box(...(() => { const r = R(105, 375, 145, 440); return [r.w, 5.8, r.d, r.cx, 0, r.cz]; })(), M(C.white, { r: 0.4 }));
+counter([105, 445, 145, 590], 2.9, C.oak, C.stone);
+box(R(105, 500, 145, 545).w - .2, 2.6, R(105, 500, 145, 545).d - .2, R(105, 500, 145, 545).cx, 0.1, R(105, 500, 145, 545).cz, M(C.white, { r: 0.3 }));
+upper([150, 375, 240, 400]);
+counter([180, 660, 240, 700]);
+// kitchen
+counter([255, 375, 292, 598]); upper([255, 420, 292, 598]);
+counter([292, 372, 470, 410]);
+counter([472, 375, 515, 598], 3.3, C.walnut, C.stone);
+[435, 475, 512, 552].forEach(y => stool(532, y));
+box(R(255, 668, 312, 718).w, 6.6, R(255, 668, 312, 718).d, R(255, 668, 312, 718).cx, 0, R(255, 668, 312, 718).cz, M(C.charcoal, { r: 0.4, m: 0.2 }));
+wardrobe([315, 683, 470, 718], 7.4);
+// dining
+table([658, 455, 722, 672], 2.5, C.stone);
+[485, 540, 595, 645].forEach(y => { chair(630, y, [690, y]); chair(748, y, [690, y]); });
+basin([808, 375, 860, 410]);
+// behind the stair: W-06 full-height glass (14'-2" × 9'-6") and the SW-01 glass door (3'-4" × 9'-6") to the courtyard
+glassPanel([494, 945, 788, 949]);
+glassPanel([790, 945, 863, 949]);
+tall(box(0.1, 2.4, 0.3, R(850, 945, 852, 949).cx, 3.0, R(850, 945, 852, 949).cz, M(C.black, { m: 0.6, r: 0.3 })), 3.0, 2.4);
+// wooden slat screen between the dining and the drawing room (formal living), floor to ceiling:
+// vertical timber fins of mixed widths, each turned a little, with a gap left by the foyer side
+(() => {
+  const r = R(864, 376, 874, 690), widths = [0.35, 0.2, 0.3, 0.45, 0.25, 0.4, 0.22], turns = [0.15, -0.1, 0.25, 0.03, -0.18, 0.12, -0.04];
+  const wood = M(0xC07A3E, { r: 0.45 });       // warm orange teak, as in the reference photo
+  let z = r.z0, i = 0;
+  while (z < r.z1) {
+    const w = widths[i % widths.length], fin = box(0.3, H_FULL, w, r.cx, 0, z + w / 2, wood);
+    fin.rotation.y = turns[i % turns.length];
+    tall(fin, 0, H_FULL);
+    z += w + 0.38; i++;
+  }
+})();
+// formal living
+rug([988, 410, 1185, 600]);
+sofa([998, 393, 1148, 440], "n");
+sofa([1160, 465, 1202, 570], "e", M(C.linen));
+table([1070, 470, 1125, 555], 1.4, C.oak);
+armchair([1162, 395, 1200, 433], [1100, 510]);
+tv([985, 738, 1230, 756], "x");
+panelWall([1060, 752, 1160, 758], C.walnut, 8.6);
+wall(R(966, 0, 0, 0).x0, R(0, 762, 0, 0).z0, R(1281, 0, 0, 0).x0, R(0, 762, 0, 0).z0);   // TV wall; open to the foyer west of it
+counter([1210, 378, 1238, 612], 1.8, C.charcoal, C.charcoal);
+[400, 470, 545, 600].forEach(y => plant(1224, y, 0.8));
+glassPanel([1252, 381, 1258, 705]);            // SD-01 sliding glass door, 15'-3" × 9'-6"
+wallPiece([1252, 705, 1258, 762], 0, H_FULL);
+brickJali([1263, 381, 1271, 572]);              // brick jali in the planter outside
+curtain([960, 380, 1055, 386], true);
+curtain([569, 380, 817, 386], true);          // dining: W-03
+curtain([1241, 381, 1249, 705], true);         // drawing room: drapes and sheer along the SD-01 sliding glass
+curtain([1176, 380, 1216, 386], true);               // over the slim W-01 window
+// toilet
+shower([228, 732, 292, 818]); wc(325, 755); basin([362, 795, 405, 820]);
+// guest bed
+rug([290, 938, 390, 1010]);
+bed([262, 965, 368, 1105], "s");
+wardrobe([210, 833, 340, 870]);
+box(R(342, 833, 382, 860).w, 6.5, 0.2, R(342, 833, 382, 860).cx, 0, R(342, 833, 382, 860).z0 + .1, M(0xC9D2D0, { r: 0.05, m: 0.6 }));
+cushionSeat([453, 972, 482, 1070]);
+counter([388, 1062, 452, 1105], 2.5, C.oak, C.oak);
+wardrobe([455, 1073, 485, 1106], 6.2);
+curtain([214, 930, 220, 1015], true);
+// doors from the schedule: D-02 guest bed 3'-4", D-03 kitchen balcony 3'-0", D-04 toilet 2'-6", all 7'-0" high
+door([481, 846, 493, 918]);
+door([246, 615, 258, 680]);
+door([356, 723, 410, 735]);
+// stair + small brick jali at its left (west) end + courtyard
+stair([495, 795, 862, 945]);
+brickJali([495, 951, 565, 959]);
+for (let i = 0; i < 14; i++) { const x = 516 + i * 24.2; rbox(R(x, 986, x + 17, 1058), 0.08, M(C.paving, { r: 0.9 }), 0.001); }
+[[560, 1080], [650, 1120], [760, 1075], [820, 1130]].forEach(([x, y]) => plant(x, y, 1.2));
+// foyer
+cushionSeat([876, 958, 898, 1137]);            // low height cabinet with seater
+counter([876, 1140, 976, 1168], 3.0, C.teak, C.stone);   // shoe cabinet
+// foyer walls as drawn
+//   west (stair side): wall, W-07 window 5'-0" × 6'-6", wall
+//   east (parking side): W-08 small full-height glass 2'-0" × 7'-6", facing brick wall, D-01 main door 5'-0" × 7'-6", return
+(() => {
+  const W = 874, E = 984, seg = (px, y0, y1) => { const a = R(px - 4, y0, px + 4, y1); wall(a.cx, a.z0, a.cx, a.z1); };
+  seg(W, 809, 960);
+  wallPiece([W - 4, 960, W + 4, 1058], 0, 1.0); glassPanel([W - 2, 960, W + 2, 1058], 6.5, 1.0); wallPiece([W - 4, 960, W + 4, 1058], 7.5, 2.0);
+  seg(W, 1058, 1170);
+  glassPanel([E - 2, 770, E + 2, 813], 7.5); wallPiece([E - 4, 770, E + 4, 813], 7.5, 2.0);
+  seg(E, 813, 1029);
+  // D-01 (sheet A.18), 5'-0" × 7'-6": 2" walnut frame, 1'-2" fixed glass sidelight in two panes,
+  // 3'-4" leaf with a perforated brass panel and a long pull handle on the latch side
+  const d = R(E - 4, 1029, E + 4, 1133), dh = 7.5, fr = 2 / 12, side = 14 / 12, x = d.cx;
+  const frame = M(C.walnut, { r: 0.6 });
+  const post = z => tall(box(0.35, dh, fr, x, 0, z, frame), 0, dh);
+  const zS = d.z0 + fr, zM = zS + side, zL = zM + fr;          // sidelight from zS to zM, leaf from zL to the far post
+  post(d.z0 + fr / 2); post(zM + fr / 2); post(d.z1 - fr / 2);
+  tall(box(0.35, fr, d.d, x, dh - fr, d.cz, frame), dh - fr, fr);
+  tall(box(0.06, dh - fr, side, x, 0, (zS + zM) / 2, M(C.glass, { r: 0.1, t: 0.3 }), false), 0, dh - fr);
+  tall(box(0.3, 0.12, side, x, 2.75, (zS + zM) / 2, frame), 2.75, 0.12);
+  const lw = d.z1 - fr - zL, lc = zL + lw / 2;
+  tall(box(0.22, dh - fr, lw, x, 0, lc, frame), 0, dh - fr);
+  const map = perfTex.clone(); map.needsUpdate = true; map.repeat.set(3, 3);
+  tall(box(0.26, 6.2, lw - 0.7, x, 0.55, lc, new THREE.MeshStandardMaterial({ color: 0xC9A86A, map, metalness: 0.55, roughness: 0.4 })), 0.55, 6.2);
+  tall(box(0.42, 3.6, 0.1, x, 1.9, zL + 0.25, M(C.black, { m: 0.6, r: 0.3 })), 1.9, 3.6);
+  wallPiece([E - 4, 1029, E + 4, 1133], dh, H_FULL - dh);
+  seg(E, 1133, 1170);
+})();
+// ground floor windows from the working drawing (sheets A.16 / A.17)
+// north face: W-04 kitchen 7'-0" × 2'-0", W-03 dining 12'-0" × 6'-6", W-02 formal living 4'-0" × 6'-6", W-01 1'-0" × 9'-6"
+windowOn([299, 370, 443, 378], 5.0, 2.0);
+windowOn([569, 370, 817, 378], 1.0, 6.5);
+windowOn([954, 370, 1033, 378], 1.0, 6.5);
+windowOn([1187, 370, 1205, 378], 0, H_FULL);
+// guest bed: W-02 on the west wall, W-05 3'-6" × 6'-6" onto the courtyard; common toilet TW-01 1'-8" × 2'-0"
+windowOn([205, 939, 213, 1014], 1.0, 6.5);
+windowOn([477, 982, 485, 1050], 1.0, 6.5); windowOn([490, 982, 498, 1050], 1.0, 6.5);
+windowOn([205, 795, 213, 820], 5.0, 2.0);
+// walls the working drawing shows on the south side: the outer wall below the guest bed,
+// and the foyer's south wall behind the shoe cabinet
+wallPiece([200, 1166, 490, 1174], 0, H_FULL);
+wallPiece([866, 1166, 984, 1174], 0, H_FULL);
+// parking
+{ const n = G.children.length; car([1010, 785, 1330, 925]); G.children.slice(n).forEach(o => o.position.y -= 4.5); }
+// plinth: the house floor stands 5'-0" above the road (sheet A.01 levels)
+{ const pl = M(0xB4ADA0); for (const a of [[103, 365, 985, 1170], [985, 365, 1395, 770]]) { const r = R(...a); box(r.w, 4.7, r.d, r.cx, -5, r.cz, pl, false); } }
+// front entrance steps (sheet A.01): outside +0'-0", steps 1–6 rise 6" each to +3'-0",
+// entrance platform (7) at +3'-6", step 8 at +4'-6" by the main door, foyer +5'-0"
+{
+  const LV = l => l - 5;
+  const block = (a, top, tile = [12, 36]) => { const r = R(...a); box(r.w, top - LV(0), r.d, r.cx, LV(0), r.cz, tileMat(C.paving, r.w, r.d, ...tile)); };
+  [1133, 1150, 1167, 1185, 1203, 1220].forEach((x0, i, xs) => block([x0, 942, xs[i + 1] ?? 1238, 1086], LV(3.0 - i * 0.5)));
+  block([984, 942, 1027, 1131], LV(4.5));
+  box(R(1027, 942, 1133, 1131).w, 3.2, R(1027, 942, 1133, 1131).d, R(1027, 942, 1133, 1131).cx, LV(0), R(1027, 942, 1133, 1131).cz, M(0xB4ADA0), false);
+  block([984, 1131, 1133, 1168], LV(3.5));
+  { const n = G.children.length; counter([988, 1136, 1124, 1166], 1.4, C.charcoal, C.grass); G.children.slice(n).forEach(o => o.position.y += LV(3.5)); }
+  const out = R(1133, 942, 1395, 1168);
+  box(out.w, 0.3, out.d, out.cx, LV(0) - 0.3, out.cz, tileMat(C.paving, out.w, out.d, 8, 16), false);
+}
+
+// ================= 1ST FLOOR =================
+F = { ...FLOORS.f, key: "f" }; G = groups.f;
+room({ name: "Sister Bed", dim: "12'-2\" × 16'-0\"", r: [105, 205, 445, 645], extra: [[445, 450, 590, 645]], walls: "nw", tile: [32, 32] });
+room({ name: "Toilet", dim: "4'-9\" × 8'-6\"", r: [455, 205, 590, 450], floor: "wet", tile: [12, 24] });
+room({ name: "Toilet", dim: "4'-9\" × 8'-6\"", r: [598, 205, 735, 450], floor: "wet", tile: [12, 24] });
+room({ name: "Parents Bed", dim: "16'-0\" × 12'-4\"", r: [740, 205, 1080, 645], extra: [[598, 450, 740, 645]], walls: "ne", tile: [32, 32] });
+room({ name: "Toilet", dim: "4'-9\" × 8'-6\"", r: [1090, 205, 1220, 450], floor: "wet", tile: [12, 24] });
+room({ name: "Primary Bed", dim: "13'-0\" × 16'-0\"", r: [1225, 205, 1590, 645], extra: [[1090, 450, 1225, 645]], walls: "n", tile: [32, 32] });
+room({ r: [1595, 205, 1645, 645], walls: "", floor: "grass" });
+room({ name: "Toilet", dim: "9'-3\" × 4'-10\"", r: [105, 660, 370, 790], floor: "wet", tile: [12, 24] });
+room({ name: "Corridor", dim: "5'-0\" wide", r: [380, 650, 1035, 770], walls: "" , tile: [32, 32]});
+room({ name: "Bother Bed", dim: "15'-6\" × 13'-1\"", r: [105, 800, 535, 1160], tile: [32, 32] });
+room({ name: "Stair", dim: "17'-6\" × 6'-3\"", r: [545, 770, 1030, 960], walls: "", tile: [32, 32] });
+room({ name: "Family Living", dim: "12'-9\" × 18'-4\"", r: [1035, 655, 1395, 1160], walls: "s", tile: [32, 32]});
+room({ name: "Terrace", dim: "6'-1\" × 12'-0\"", r: [1395, 804, 1632, 1134], walls: "ns", floor: "paving" });
+// side walls of the L-shaped bedrooms
+(() => { const a = R(590, 450, 598, 645); wall(a.cx, a.z0, a.cx, a.z1); const b = R(1080, 450, 1090, 645); wall(b.cx, b.z0, b.cx, b.z1); })();
+(() => { const s = R(105, 645, 1225, 650); wall(R(105,0,0,0).x0, s.cz, R(590,0,0,0).x0, s.cz); wall(R(598,0,0,0).x0, s.cz, R(1590,0,0,0).x0, s.cz); })();
+
+// double-height void over the courtyard: glass railing on its edge
+// W-07 full-height glass between the stair and the double-height void, small brick jali at its left, planter ledge
+glassPanel([548, 940, 929, 946]);
+brickJali([551, 949, 641, 957]);
+counter([929, 940, 1027, 966], 1.6, C.charcoal, C.grass);
+const v = R(545, 964, 1030, 1160);
+const voidEdge = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.PlaneGeometry(v.w, v.d)), new THREE.LineDashedMaterial({ color: 0x8A8170, dashSize: 0.8, gapSize: 0.5 }));
+voidEdge.rotation.x = -Math.PI / 2; voidEdge.position.set(v.cx, 0.02, v.cz); voidEdge.computeLineDistances(); G.add(voidEdge);
+
+// sister bed
+rug([220, 225, 310, 380]); bed([250, 255, 432, 420], "e");
+panelWall([106, 215, 113, 640], C.oak, 8.6);
+curtain([290, 217, 413, 223], true);
+curtain([117, 400, 123, 597], true);           // Bed-03 west: W-04
+counter([115, 598, 215, 640], 2.5, C.oak, C.oak); chair(160, 585, [160, 620]);
+box(R(220, 632, 300, 640).w, 6.5, 0.2, R(220, 632, 300, 640).cx, 0, R(220, 632, 300, 640).cz, M(0xC9D2D0, { r: 0.05, m: 0.6 }));
+wardrobe([532, 452, 588, 643]);
+// toilets
+shower([458, 210, 540, 285]); wc(548, 320); basin([545, 360, 588, 440]);
+shower([600, 210, 700, 285]); wc(632, 320); basin([600, 360, 645, 440]);
+shower([1092, 210, 1215, 285]); wc(1125, 325); basin([1092, 370, 1135, 440]);
+shower([110, 665, 195, 785]); wc(240, 690); basin([322, 665, 366, 780]);
+// parents bed
+rug([850, 245, 945, 410]); bed([885, 275, 1065, 440], "e");
+panelWall([745, 632, 935, 643], C.brick, 8.4);
+armchair([770, 575, 830, 630], [900, 400]); armchair([850, 565, 910, 625], [900, 400]);
+box(R(935, 632, 1025, 640).w, 6.5, 0.2, R(935, 632, 1025, 640).cx, 0, R(935, 632, 1025, 640).cz, M(0xC9D2D0, { r: 0.05, m: 0.6 }));
+wardrobe([1030, 598, 1075, 640], 5.5);
+wardrobe([600, 452, 652, 643]);
+curtain([788, 217, 976, 223], true);
+// primary bed
+rug([1400, 420, 1530, 515]); bed([1335, 455, 1505, 630], "s");
+armchair([1240, 250, 1295, 305], [1335, 315]); armchair([1250, 330, 1305, 385], [1335, 315]);
+roundTable(1335, 315, 42, 1.8, C.oak);
+counter([1455, 260, 1565, 285], 2.5, C.oak, C.oak);
+box(R(1240, 632, 1330, 642).w, 6.5, 0.2, R(1240, 632, 1330, 642).cx, 0, R(1240, 632, 1330, 642).cz, M(0xC9D2D0, { r: 0.05, m: 0.6 }));
+wardrobe([1092, 452, 1145, 643]);
+panelWall([1228, 212, 1236, 440], C.brick, 8.4);
+curtain([1272, 217, 1475, 223], true); curtain([1573, 281, 1579, 590], true);
+// bother bed
+rug([170, 935, 300, 1025]); bed([200, 968, 365, 1150], "s");
+wardrobe([487, 802, 533, 990]); cushionSeat([487, 995, 533, 1105]);
+counter([385, 1108, 530, 1155], 2.5, C.oak, C.oak); chair(455, 1090, [455, 1130]);
+box(R(150, 805, 235, 812).w, 6.5, 0.2, R(150, 805, 235, 812).cx, 0, R(150, 805, 235, 812).cz, M(0xC9D2D0, { r: 0.05, m: 0.6 }));
+wardrobe([110, 805, 148, 830], 5.5);
+curtain([117, 921, 123, 1100], true);
+// family living
+rug([1180, 705, 1375, 945]);
+sofa([1245, 665, 1318, 722], "n"); sofa([1318, 722, 1385, 890], "e");
+roundTable(1270, 810, 30, 1.4, C.stone);
+armchair([1215, 915, 1270, 970], [1270, 810]); armchair([1300, 915, 1355, 970], [1270, 810]);
+box(R(1335, 668, 1380, 710).w, 1.8, R(1335, 668, 1380, 710).d, R(1335, 668, 1380, 710).cx, 0, R(1335, 668, 1380, 710).cz, M(C.walnut));
+plant(1357, 690, 0.7);
+tv([1130, 1142, 1300, 1158], "x");
+wardrobe([1040, 1125, 1128, 1158], 5.5); wardrobe([1302, 1125, 1385, 1158], 5.5);
+cushionSeat([1040, 960, 1090, 1122]);
+counter([1040, 775, 1088, 955], 3.4, C.walnut, C.stone);
+panelWall([1031, 780, 1037, 955], C.brick, 9.2);
+curtain([1376, 667, 1382, 1153], true);
+stair([550, 775, 1028, 955]);
+// terrace planter
+counter([1575, 812, 1625, 1126], 1.6, C.charcoal, C.grass);
+[850, 930, 1010, 1090].forEach(y => plant(1600, y, 0.9));
+
+// 1st floor doors and windows from the working drawing (sheets A.20 / A.21)
+// doors: D-01 bedrooms 3'-4" × 7'-0", D-02 attached toilets 2'-6" × 7'-0"
+door([388, 646, 480, 658]); door([658, 646, 744, 658]); door([1139, 646, 1228, 658]); door([398, 799, 490, 811]);
+door([460, 441, 529, 453]); door([628, 441, 697, 453]); door([1145, 441, 1214, 453]); door([258, 780, 327, 792]);
+// north face: W-02 4'-0" and W-03 6'-6" (× 6'-6"), TW-01 toilet windows 1'-8" × 4'-0", W-01 1'-0" × 9'-6"
+windowOn([300, 206, 403, 214], 1.0, 6.5); windowOn([798, 206, 966, 214], 1.0, 6.5); windowOn([1282, 206, 1384, 214], 1.0, 6.5);
+windowOn([464, 206, 505, 214], 3.5, 4.0); windowOn([687, 206, 728, 214], 3.5, 4.0); windowOn([1172, 206, 1213, 214], 3.5, 4.0);
+windowOn([1446, 206, 1467, 214], 0, H_FULL);
+// west face: W-04 7'-0" (Bed-03), TW-01 (Bed-04 toilet), W-05 6'-3" (Bed-04)
+windowOn([106, 409, 114, 588], 1.0, 6.5); windowOn([106, 731, 114, 780], 3.5, 4.0); windowOn([106, 931, 114, 1090], 1.0, 6.5);
+// Bed-04 east wall onto the void: W-06 3'-6" × 6'-6"
+windowOn([526, 988, 534, 1082], 1.0, 6.5);
+// Family living west, onto the void: W-08 5'-0" × 6'-6" in a wall
+wallPiece([1029, 960, 1037, 1090], 0, 1.0); glassPanel([1031, 960, 1035, 1090], 6.5, 1.0); wallPiece([1029, 960, 1037, 1090], 7.5, 2.0);
+wallPiece([1029, 1090, 1037, 1160], 0, H_FULL);
+// Family living east: SD-01 sliding glass to the terrace, 18'-2" × 8'-6"
+glassPanel([1388, 667, 1394, 1153], 8.5); wallPiece([1387, 667, 1395, 1153], 8.5, 1.0);
+// Bed-01 east: SD-02 sliding glass to the planter, 11'-9" × 9'-4", with the brick jali in the planter outside
+wallPiece([1582, 210, 1590, 281], 0, H_FULL); glassPanel([1584, 281, 1588, 590], 9.33); wallPiece([1582, 590, 1590, 645], 0, H_FULL);
+brickJali([1621, 219, 1629, 431]);
+
+// ================= EXTERIOR (shown with "Both" floors and full walls) =================
+// After the reference render: white concrete frame and slabs, a brick-clad box with triangle
+// jali on the front right, planters spilling greenery on the 1st-floor ledges, a roof-level
+// portal frame with a perforated (round-hole) pergola, and a low front wall with a jali band.
+const extItems = [];
+function exterior(fn) {
+  const n = G.children.length, w = walls.length;
+  fn();
+  G.children.slice(n).forEach(o => { o.userData.ext = true; extItems.push(o); });
+  walls.length = w;                                // exterior parts ignore the cutaway toggle
+}
+const concrete = M(C.white, { r: 0.8 });
+const brickTex = canvasTex(512, (g, n) => {
+  const rows = 12, rh = n / rows, bw = n / 4;
+  g.fillStyle = "#e6e0d6"; g.fillRect(0, 0, n, n);
+  for (let r = 0; r < rows; r++) for (let i = -1; i < 5; i++) {
+    const x = i * bw + (r % 2 ? bw / 2 : 0), t = rnd();
+    g.fillStyle = `rgb(${196 + t * 30 | 0},${100 + t * 26 | 0},${58 + t * 18 | 0})`;
+    g.fillRect(x + 3, r * rh + 3, bw - 6, rh - 6);
+  }
+}, 3);
+const brickClad = new THREE.MeshStandardMaterial({ map: brickTex, roughness: 0.9 });
+const holeTex = canvasTex(512, (g, n) => {
+  g.fillStyle = "#fff"; g.fillRect(0, 0, n, n);
+  g.globalCompositeOperation = "destination-out";
+  for (let i = 0; i < 26; i++) { g.beginPath(); g.arc(rnd() * n, rnd() * n, 14 + rnd() * 34, 0, 7); g.fill(); }
+}, 8);
+const holed = new THREE.MeshStandardMaterial({ color: C.white, map: holeTex, alphaTest: 0.5, side: THREE.DoubleSide, roughness: 0.8 });
+// a box between two heights over a plan rect
+const slab = (a, y0, y1, mat = concrete) => { const r = R(...a); return box(r.w, y1 - y0, r.d, r.cx, y0, r.cz, mat); };
+function jaliAt(a, y0, h) {
+  const r = R(...a), alongX = r.w > r.d, len = alongX ? r.w : r.d;
+  const map = jaliTex.clone(); map.needsUpdate = true; map.repeat.set(1 / 3, 1 / 3);
+  const m = new THREE.MeshStandardMaterial({ color: C.brick, map, alphaTest: 0.5, side: THREE.DoubleSide, roughness: 0.9 });
+  (byKey.brick ||= []).push(m);
+  box(alongX ? len : 0.3, h, alongX ? 0.3 : len, r.cx, y0, r.cz, m, false);
+}
+// The street front is the EAST face (plan right): the main door, entrance steps, parking gate and
+// the formal living / Bed-01 brick jali all face it, matching the reference render seen from the road.
+// Seen from the street, its left is the plan's bottom (entrance) and its right the plan's top.
+// planter trough with leafy plants spilling over its street edge (+x)
+function planterGreens(a, y0) {
+  const r = R(...a);
+  slab(a, y0, y0 + 1.5);
+  const leaf = [M(C.leaf, { r: 0.9 }), M(0x7E9A52, { r: 0.9 }), M(0x4F6B3A, { r: 0.9 })];
+  const n = Math.round(r.d / 0.8);
+  for (let i = 0; i < n; i++) for (let k = 0; k < 3; k++) {
+    const b = new THREE.Mesh(new THREE.IcosahedronGeometry(0.5 + rnd() * 0.45, 1), leaf[(i + k) % 3]);
+    b.position.set(r.x1 - 0.1 + k * 0.25, y0 + 1.4 - k * 0.55 + rnd() * 0.5, r.z0 + (i + rnd()) * r.d / n);
+    b.scale.y = 0.8 + k * 0.25; b.castShadow = true; G.add(b);
+  }
+}
+// wall light on an east-facing wall, washing light down the brick
+function wallLight(px, py, y) {
+  const [x, z] = ft(px, py);
+  box(0.25, 0.8, 0.35, x, y, z, M(C.black, { m: 0.5, r: 0.4 }));
+  const glow = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.06, 0.2), new THREE.MeshBasicMaterial({ color: 0xFFD9A0 }));
+  glow.position.set(x, y - 0.05, z); G.add(glow);
+  const l = new THREE.SpotLight(0xFFC487, 25, 10, 0.7, 0.6, 2); l.position.set(x + 0.2, y, z); l.target.position.set(x + 0.6, y - 6, z); G.add(l, l.target);
+}
+// black vertical-bar gate running along z
+function barGate(a, y0, h) {
+  const r = R(...a), bar = M(C.black, { m: 0.5, r: 0.4 });
+  for (let z = r.z0 + 0.15; z < r.z1; z += 0.3) box(0.06, h, 0.06, r.cx, y0, z, bar);
+  for (const y of [y0 + 0.2, y0 + h - 0.2]) box(0.08, 0.12, r.d, r.cx, y, r.cz, bar);
+}
+
+// ground floor: slab over the ground floor, facing-brick foyer wall with a wall light, gates, low jali wall
+F = { ...FLOORS.g, key: "g" }; G = groups.g;
+exterior(() => {
+  for (const a of [[103, 365, 1290, 965], [103, 965, 490, 1180], [865, 965, 1290, 1180]]) slab(a, H_FULL, H_FULL + 0.9);
+  slab([988, 770, 994, 1029], 0, H_FULL, brickClad);                   // facing brick on the foyer's street wall
+  slab([988, 1133, 994, 1170], 0, H_FULL, brickClad);
+  wallLight(996, 1150, 6.4);
+  const G0 = -5.35;                                                    // road level
+  barGate([1388, 770, 1396, 940], G0, 6.5);                            // car gate to the parking
+  barGate([1388, 942, 1396, 1060], G0, 6.5);                           // pedestrian gate to the front steps
+  slab([1388, 1060, 1396, 1170], G0, G0 + 5.5);
+  slab([1395, 310, 1403, 770], G0, G0 + 3.8);                          // low front wall before the formal living planter
+  jaliAt([1395, 310, 1403, 770], G0 + 3.8, 2.2);                       // with a jali band on top
+});
+
+// 1st floor: roof slab + parapet, brick box on Bed-01's street front, terrace planter, roof room, portal frame
+F = { ...FLOORS.f, key: "f" }; G = groups.f;
+exterior(() => {
+  const top = H_FULL + 1.2;
+  for (const a of [[105, 205, 1595, 804], [105, 804, 1395, 964], [105, 964, 545, 1160], [1030, 964, 1395, 1160]]) slab(a, H_FULL, top);
+  // parapets (4 ft, parapet level +31'-0") on the open roof edges
+  slab([594, 205, 1016, 213], top, top + 4); slab([1385, 645, 1395, 1160], top, top + 4);
+  slab([1590, 645, 1600, 808], top, top + 4); slab([1395, 800, 1600, 808], top, top + 4);
+  // brick box on Bed-01's street front (right on the reference): deep brick frame out to the planter edge,
+  // triangle jali on the right (plan top), big framed window on the left
+  const B = (a, y0, y1) => slab(a, y0, y1, brickClad), X0 = 1590, X1 = 1650;
+  B([X0, 205, X1, 645], -0.3, 1.0); B([X0, 205, X1, 645], 8.2, top + 0.3);
+  B([X0, 205, X1, 219], 1.0, 8.2); B([X0, 425, X1, 437], 1.0, 8.2); B([X0, 631, X1, 645], 1.0, 8.2);
+  jaliAt([X1 - 8, 219, X1 - 3, 425], 1.0, 7.2);
+  slab([X1 - 8, 437, X1 - 5, 631], 1.0, 8.2, M(C.glass, { r: 0.08, m: 0.4 }));
+  for (const z of [437, 534, 631]) slab([X1 - 9, z - 1, X1 - 4, z + 1], 1.0, 8.2, M(C.black));
+  planterGreens([X1, 205, X1 + 24, 645], -0.3);
+  // terrace (left on the reference): planter along its street edge with greenery spilling over
+  planterGreens([1610, 804, 1636, 1134], 0);
+  // ---- roof floor, after sheets A.03 (roof floor plan) and A.12 (roof top slab & beam plan) ----
+  // Middle: the stair and corridor under Slab-1, 10'-6" above the roof floor. The two west bedrooms
+  // on the drawing are left out, so the west part is open roof. East: an open roof terrace under
+  // Slab-2, 13'-6" up, with round cut-outs over its north end, carried on a perforated wall to the
+  // north and a solid wall to the south.
+  // The west roof, the roof north of the stair and the courtyard void stay open to the sky.
+  const RT = top, S1 = RT + 10.5, S2 = RT + 13.5;
+  const W = (a, y1 = S1 - 1.2) => slab(a, RT, y1);
+  // the two west bedrooms (Bed-05, Bed-06) and their toilets are left out: that part is open roof,
+  // edged with 4 ft parapets
+  slab([105, 205, 113, 1160], RT, RT + 4); slab([105, 205, 594, 213], RT, RT + 4);
+  slab([105, 1152, 549, 1160], RT, RT + 4); slab([541, 961, 549, 1160], RT, RT + 4);
+  // stair head: west wall, glazing toward the open roof on the north, stair east wall
+  W([541, 633, 549, 961]);
+  slab([549, 650, 1016, 655], RT, S1 - 1.2, M(C.glass, { r: 0.1, t: 0.3 }));
+  for (let x = 549; x <= 1016; x += 78) slab([x - 1, 649, x + 1, 656], RT, S1 - 1.2, M(C.black));
+  W([1026, 639, 1034, 961]);
+  // the courtyard void edge at roof level: small jali, glass railing, facing brick
+  jaliAt([551, 950, 638, 956], RT, 4);
+  slab([638, 951, 928, 955], RT, RT + 3.5, M(C.glass, { r: 0.1, t: 0.3 }));
+  slab([928, 948, 1019, 956], RT, RT + 4, brickClad);
+  // Slab-1 over the stair / corridor band
+  slab([549, 633, 1036, 961], S1 - 1.2, S1);
+  // east terrace frame: perforated north wall, solid south wall, two free columns, Slab-2 with round cut-outs
+  slab([1016, 205, 1377, 220], RT, S2 - 1.2, holed);
+  slab([970, 1155, 1377, 1170], RT, S2 - 1.2);
+  for (const [x, y] of [[1016, 633], [1377, 633]]) slab([x - 9, y - 9, x + 9, y + 9], RT, S2 - 1.2);
+  slab([1016, 205, 1377, 260], S2 - 1.2, S2); slab([1016, 487, 1377, 1170], S2 - 1.2, S2);
+  slab([1016, 260, 1108, 487], S2 - 1.2, S2); slab([1333, 260, 1377, 487], S2 - 1.2, S2);
+  slab([1108, 260, 1333, 487], S2 - 1.2, S2, holed);
+  // facing-brick parapet around the roof of the Bed-01 brick box
+  slab([1377, 205, 1650, 213], RT, RT + 4, brickClad); slab([1377, 637, 1650, 645], RT, RT + 4, brickClad); slab([1642, 205, 1650, 645], RT, RT + 4, brickClad);
+});
+
+// warm interior lights (about 3000 K) near ceiling height in the main rooms, one floor group each
+function lamp(px, py, power = 45) {
+  const [x, z] = ft(px, py), l = new THREE.PointLight(0xFFC487, power, 26, 2);
+  l.position.set(x, 8.4, z); G.add(l);
+}
+F = { ...FLOORS.g, key: "g" }; G = groups.g;
+[[690, 560], [1060, 540], [380, 540], [925, 950], [345, 980], [680, 870]].forEach(([x, y]) => lamp(x, y));
+F = { ...FLOORS.f, key: "f" }; G = groups.f;
+[[1215, 900], [275, 430], [905, 430], [1405, 430], [320, 980], [700, 710]].forEach(([x, y]) => lamp(x, y));
+// site ground at road level, so the raised house sits on something
+{
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(500, 500), new THREE.MeshStandardMaterial({ color: 0xA7A08C, roughness: 1 }));
+  ground.rotation.x = -Math.PI / 2; ground.position.set(30, -5.35, 30); ground.receiveShadow = true; scene.add(ground);
+}
+
+// ---------- floor modes ----------
+const center = {};
+F = { ...FLOORS.f, key: "f" }; center.f = R(75, 195, 1645, 1160);
+F = { ...FLOORS.g, key: "g" }; center.g = R(95, 355, 1395, 1170);
+
+let mode = "g", wallsLow = true, showLabels = true, showCurtains = true;
+const STACK = H_FULL + 0.9;
+function applyMode() {
+  groups.g.visible = mode !== "f";
+  groups.f.visible = mode !== "g";
+  groups.f.position.y = mode === "b" ? STACK : 0;
+  applyExt();
+  for (const k of ["g", "f"]) labels[k].forEach(l => l.visible = showLabels && groups[k].visible);
+  [["f-g", "g"], ["f-1", "f"], ["f-b", "b"]].forEach(([id, m]) => document.getElementById(id).setAttribute("aria-pressed", mode === m));
+  renderRooms();
+}
+function applyExt() { extItems.forEach(o => o.visible = mode === "b" && !wallsLow); }
+function applyWalls() {
+  walls.forEach(m => {
+    const { y0, h } = m.userData.cut;
+    const hh = wallsLow ? Math.max(0.05, Math.min(h, H_LOW - y0)) : h;
+    m.visible = !(wallsLow && (m.userData.hideLow || y0 >= H_LOW)) && !(m.userData.curtain && !showCurtains);
+    m.scale.y = hh / h; m.position.y = y0 + hh / 2;
+  });
+  applyExt();
+  document.getElementById("w-low").setAttribute("aria-pressed", wallsLow);
+  document.getElementById("w-full").setAttribute("aria-pressed", !wallsLow);
+}
+
+// ---------- camera ----------
+let anim = null;
+function flyTo(tx, ty, tz, dist) {
+  const dir = new THREE.Vector3(-0.55, 0.95, 1).normalize();
+  const toT = new THREE.Vector3(tx, ty, tz), toP = toT.clone().add(dir.multiplyScalar(dist));
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduce) { controls.target.copy(toT); camera.position.copy(toP); return; }
+  anim = { t: 0, fromT: controls.target.clone(), fromP: camera.position.clone(), toT, toP };
+}
+function overview() {
+  const c = mode === "f" ? center.f : center.g;
+  flyTo(c.cx, mode === "b" ? STACK / 2 : 0, c.cz, mode === "b" ? 95 : 72);
+}
+
+// ---------- room list ----------
+const roomsEl = document.getElementById("rooms");
+let activeRoom = null;
+function renderRooms() {
+  roomsEl.innerHTML = "";
+  const items = roomIndex.filter(r => mode === "b" || r.floor === mode);
+  for (const r of items) {
+    const b = document.createElement("button");
+    b.className = "room" + (activeRoom === r ? " on" : "");
+    b.innerHTML = `<span>${r.name}${mode === "b" ? ` <small>${r.floor === "g" ? "GF" : "1F"}</small>` : ""}</span><small>${r.dim || ""}</small>`;
+    b.addEventListener("click", () => {
+      activeRoom = r;
+      const y = r.floor === "f" && mode === "b" ? STACK : 0;
+      flyTo(r.cx, y, r.cz, Math.max(16, r.size * 1.6));
+      renderRooms();
+    });
+    roomsEl.appendChild(b);
+  }
+}
+
+const setMode = m => { mode = m; activeRoom = null; applyMode(); overview(); };
+document.getElementById("f-g").onclick = () => setMode("g");
+document.getElementById("f-1").onclick = () => setMode("f");
+document.getElementById("f-b").onclick = () => setMode("b");
+// Exterior: both floors, full walls, camera in front of the street (east) facade
+document.getElementById("f-x").onclick = () => {
+  mode = "b"; wallsLow = false; activeRoom = null; applyMode(); applyWalls();
+  const c = center.g, toT = new THREE.Vector3(c.x1, 11, c.cz);
+  anim = { t: 0, fromT: controls.target.clone(), fromP: camera.position.clone(), toT, toP: toT.clone().add(new THREE.Vector3(105, 3, 12)) };
+};
+document.getElementById("w-low").onclick = () => { wallsLow = true; applyWalls(); };
+document.getElementById("w-full").onclick = () => { wallsLow = false; applyWalls(); };
+document.getElementById("l-tog").onclick = e => { showLabels = !showLabels; e.currentTarget.setAttribute("aria-pressed", showLabels); applyMode(); };
+
+const composer = new EffectComposer(renderer);
+composer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
+composer.addPass(new RenderPass(scene, camera));
+const ao = new GTAOPass(scene, camera, 1, 1);
+ao.updateGtaoMaterial({ radius: 1.6, distanceExponent: 1.5, thickness: 1.5, scale: 1.2, samples: 16 });
+ao.blendIntensity = 0.9;
+// glass and the cut-out jali shouldn't cast ambient occlusion
+const baseHide = ao.overrideVisibility.bind(ao);
+ao.overrideVisibility = function () {
+  baseHide();
+  scene.traverse(o => { if (o.isMesh && (o.material.transparent || o.material.alphaTest > 0)) o.visible = false; });
+};
+composer.addPass(ao);
+composer.addPass(new OutputPass());
+// keep the studio environment as soft fill: full strength only on glass and metal
+scene.traverse(o => { if (o.isMesh && o.material.isMeshStandardMaterial) o.material.envMapIntensity = o.material.transparent || o.material.metalness > 0.3 ? 1 : 0.4; });
+let realistic = true;
+document.getElementById("c-tog").onclick = e => { showCurtains = !showCurtains; e.currentTarget.setAttribute("aria-pressed", showCurtains); applyWalls(); };
+// zoom: buttons and a slider that move the camera toward or away from the point it orbits,
+// on a log scale so each step feels the same; the slider follows mouse-wheel and pinch zoom too
+const zRange = document.getElementById("z-range");
+const lnMin = Math.log(controls.minDistance), lnMax = Math.log(controls.maxDistance);
+const dist = () => camera.position.distanceTo(controls.target);
+function setDist(d) {
+  anim = null;
+  d = Math.min(controls.maxDistance, Math.max(controls.minDistance, d));
+  const dir = camera.position.clone().sub(controls.target).normalize();
+  camera.position.copy(controls.target).addScaledVector(dir, d);
+  syncZoom();
+}
+function syncZoom() { zRange.value = Math.round(100 * (1 - (Math.log(dist()) - lnMin) / (lnMax - lnMin))); }
+zRange.addEventListener("input", () => setDist(Math.exp(lnMax - (zRange.value / 100) * (lnMax - lnMin))));
+document.getElementById("z-in").onclick = () => setDist(dist() / 1.3);
+document.getElementById("z-out").onclick = () => setDist(dist() * 1.3);
+document.getElementById("z-fit").onclick = () => overview();
+controls.addEventListener("change", syncZoom);
+document.getElementById("q-tog").onclick = e => { realistic = !realistic; e.currentTarget.setAttribute("aria-pressed", realistic); };
+
+function resize() {
+  const w = view.clientWidth, h = view.clientHeight;
+  renderer.setSize(w, h); labelRenderer.setSize(w, h); composer.setSize(w, h);
+  camera.aspect = w / h; camera.updateProjectionMatrix();
+}
+new ResizeObserver(resize).observe(view);
+resize();
+
+applyWalls(); applyMode();
+{ const c = center.g; controls.target.set(c.cx, 0, c.cz); camera.position.set(c.cx - 38, 62, c.cz + 66); }
+
+// ---------- color settings ----------
+const hex6 = n => "#" + n.toString(16).padStart(6, "0").toUpperCase();
+const paletteEl = document.getElementById("palette");
+const savedEl = document.getElementById("saved");
+const inputs = {};
+
+function setColor(key, value) {
+  current[key] = value;
+  (byKey[key] || []).forEach(m => m.color.setHex(value));
+  if (inputs[key]) { inputs[key].value = hex6(value).toLowerCase(); inputs[key].nextElementSibling.nextElementSibling.textContent = hex6(value); }
+}
+function paintBar() {
+  const bars = document.querySelectorAll("#bar b");
+  SETTINGS.forEach((g, i) => bars[i].style.background = hex6(current[g.keys[0][0]]));
+}
+function save(msg) {
+  const diff = {};
+  for (const k in current) if (current[k] !== DEFAULT[k]) diff[k] = current[k];
+  try { localStorage.setItem(STORE, JSON.stringify(diff)); savedEl.textContent = msg || "Saved in this browser."; }
+  catch { savedEl.textContent = msg || "Changes apply now but can't be saved in this browser."; }
+  markPreset();
+}
+
+for (const g of SETTINGS) {
+  const band = document.createElement("div");
+  band.className = "band";
+  band.innerHTML = `<div class="pct">${g.pct}</div><div><h3>${g.title}</h3><div class="swatches"></div></div>`;
+  const list = band.querySelector(".swatches");
+  for (const [key, label] of g.keys) {
+    const row = document.createElement("label");
+    row.className = "pick";
+    row.htmlFor = "c-" + key;
+    row.innerHTML = `<input type="color" id="c-${key}"><span></span><code></code>`;
+    row.querySelector("span").textContent = label;
+    const inp = inputs[key] = row.querySelector("input");
+    inp.addEventListener("input", () => { setColor(key, parseInt(inp.value.slice(1), 16)); paintBar(); });
+    inp.addEventListener("change", () => save());
+    list.appendChild(row);
+  }
+  paletteEl.appendChild(band);
+}
+
+const presetsEl = document.getElementById("presets");
+const presetBtns = {};
+function applyPreset(name) {
+  const p = { ...DEFAULT, ...PRESETS[name] };
+  SETTINGS.forEach(g => g.keys.forEach(([k]) => setColor(k, p[k])));
+  paintBar();
+}
+function markPreset() {
+  for (const [name, b] of Object.entries(presetBtns)) {
+    const p = { ...DEFAULT, ...PRESETS[name] };
+    b.setAttribute("aria-pressed", SETTINGS.every(g => g.keys.every(([k]) => p[k] === current[k])));
+  }
+}
+for (const name of Object.keys(PRESETS)) {
+  const b = presetBtns[name] = document.createElement("button");
+  b.className = "btn"; b.textContent = name;
+  b.addEventListener("click", () => { applyPreset(name); save(`${name} applied and saved.`); });
+  presetsEl.appendChild(b);
+}
+document.getElementById("reset").addEventListener("click", () => { applyPreset("Warm earthy"); save("Reset to the video palette."); });
+document.getElementById("copy").addEventListener("click", () => {
+  const text = SETTINGS.map(g => `${g.pct}% ${g.title}\n` + g.keys.map(([k, l]) => `  ${l}: ${hex6(current[k])}`).join("\n")).join("\n\n");
+  navigator.clipboard.writeText(text).then(() => savedEl.textContent = "Color list copied.",
+    () => savedEl.textContent = "Couldn't copy here. The hex codes are listed next to each color.");
+});
+
+SETTINGS.forEach(g => g.keys.forEach(([k]) => setColor(k, current[k])));
+paintBar(); markPreset();
+
+renderer.setAnimationLoop(() => {
+  if (anim) {
+    anim.t = Math.min(1, anim.t + 0.035);
+    const e = 1 - Math.pow(1 - anim.t, 3);
+    controls.target.lerpVectors(anim.fromT, anim.toT, e);
+    camera.position.lerpVectors(anim.fromP, anim.toP, e);
+    if (anim.t >= 1) anim = null;
+  }
+  controls.update();
+  if (realistic) composer.render(); else renderer.render(scene, camera);
+  labelRenderer.render(scene, camera);
+});
+</script>
